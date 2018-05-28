@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isEqual, noop, omit } from 'lodash';
+import { noop, omit } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -11,6 +11,7 @@ import {
 	synchronizeBlocksWithTemplate,
 } from '@wordpress/blocks';
 import { withSelect, withDispatch } from '@wordpress/data';
+import isShallowEqual from '@wordpress/is-shallow-equal';
 
 /**
  * Internal dependencies
@@ -56,10 +57,12 @@ export function createInnerBlockList( uid, renderBlockMenu = noop ) {
 
 			componentDidMount() {
 				INNER_BLOCK_LIST_CACHE[ uid ][ 1 ]++;
-				this.updateNestedSettings( {
-					supportedBlocks: this.props.allowedBlocks,
-				} );
+				this.updateNestedSettings();
 				this.insertTemplateBlocks( this.props.template );
+			}
+
+			componentDidUpdate() {
+				this.updateNestedSettings();
 			}
 
 			insertTemplateBlocks( template ) {
@@ -71,9 +74,14 @@ export function createInnerBlockList( uid, renderBlockMenu = noop ) {
 				}
 			}
 
-			updateNestedSettings( newSettings ) {
-				if ( ! isEqual( this.props.blockListSettings, newSettings ) ) {
-					this.props.updateNestedSettings( newSettings );
+			updateNestedSettings() {
+				const { allowedBlocks, lock, parentLock, blockListSettings, updateNestedSettings } = this.props;
+				const newSettings = {
+					allowedBlocks,
+					lock: lock === undefined ? parentLock : lock,
+				};
+				if ( ! isShallowEqual( blockListSettings, newSettings ) ) {
+					updateNestedSettings( newSettings );
 				}
 			}
 
@@ -98,10 +106,11 @@ export function createInnerBlockList( uid, renderBlockMenu = noop ) {
 
 		const InnerBlockListComponentContainer = compose(
 			withSelect( ( select ) => {
-				const { getBlock, getBlockListSettings } = select( 'core/editor' );
+				const { getBlock, getBlockListSettings, getBlockRootUID, getLockedState } = select( 'core/editor' );
 				return {
 					block: getBlock( uid ),
 					blockListSettings: getBlockListSettings( uid ),
+					parentLock: getLockedState( getBlockRootUID( uid ) ),
 				};
 			} ),
 			withDispatch( ( dispatch ) => {

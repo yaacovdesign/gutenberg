@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { flow, noop } from 'lodash';
+import { castArray, flow, noop, some } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -36,11 +36,12 @@ export default compose(
 			dispatch( 'core/editor' ).removeBlocks( uids );
 		},
 	} ) ),
-	withSelect( ( select ) => {
-		const { templateLock } = select( 'core/editor' ).getEditorSettings();
-
+	withSelect( ( select, { uids } ) => {
+		const { getBlockRootUID, getLockedState } = select( 'core/editor' );
 		return {
-			isLocked: !! templateLock,
+			isLocked: some( castArray( uids ), ( uid ) => {
+				return !! getLockedState( getBlockRootUID( uid ) );
+			} ),
 		};
 	} ),
 )( BlockRemoveButton );

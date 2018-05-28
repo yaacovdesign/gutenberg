@@ -1326,20 +1326,20 @@ export const canInsertBlockType = createSelector(
 			return false;
 		}
 
-		const { allowedBlockTypes, templateLock } = getEditorSettings( state );
+		const { allowedBlockTypes } = getEditorSettings( state );
 
 		const isBlockAllowedInEditor = checkAllowList( allowedBlockTypes, blockName, true );
 		if ( ! isBlockAllowedInEditor ) {
 			return false;
 		}
 
-		const isEditorLocked = !! templateLock;
-		if ( isEditorLocked ) {
+		const isLocked = !! getLockedState( state, parentUID );
+		if ( isLocked ) {
 			return false;
 		}
 
 		const parentBlockListSettings = getBlockListSettings( state, parentUID );
-		const parentAllowedBlocks = get( parentBlockListSettings, [ 'supportedBlocks' ] );
+		const parentAllowedBlocks = get( parentBlockListSettings, [ 'allowedBlocks' ] );
 		const hasParentAllowedBlock = checkAllowList( parentAllowedBlocks, blockName );
 
 		const blockAllowedParentBlocks = blockType.parent;
@@ -1833,4 +1833,23 @@ export function getSupportedBlocks( state, uid, globallyEnabledBlockTypes ) {
  */
 export function getEditorSettings( state ) {
 	return state.settings;
+}
+
+/*
+ * Returns the locked state in the context of a given root block.
+ *
+ * @param {Object}  state   Editor state.
+ * @param {?string} rootUID Block UID.
+ *
+ * @return {?string} Locked state in the context of a given block.
+ */
+export function getLockedState( state, rootUID = null ) {
+	if ( rootUID === null ) {
+		return getTemplateLock( state );
+	}
+	const blockListSettings = getBlockListSettings( state, rootUID );
+	if ( ! blockListSettings ) {
+		return null;
+	}
+	return blockListSettings.lock;
 }

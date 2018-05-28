@@ -78,7 +78,7 @@ export default compose(
 			getBlock,
 			isBlockInsertionPointVisible,
 			isTyping,
-			getEditorSettings,
+			getLockedState,
 		} = select( 'core/editor' );
 		const blockIndex = uid ? getBlockIndex( uid, rootUID ) : -1;
 		const insertIndex = blockIndex;
@@ -92,13 +92,13 @@ export default compose(
 		);
 
 		return {
-			templateLock: getEditorSettings().templateLock,
+			isLocked: !! getLockedState( insertionPoint.rootUID ),
 			showInserter: ! isTyping() && canShowInserter,
 			index: insertIndex,
 			showInsertionPoint,
 		};
 	} ),
-	ifCondition( ( { templateLock } ) => ! templateLock ),
+	ifCondition( ( { isLocked } ) => ! isLocked ),
 	withDispatch( ( dispatch ) => {
 		const { insertDefaultBlock, startTyping } = dispatch( 'core/editor' );
 		return {

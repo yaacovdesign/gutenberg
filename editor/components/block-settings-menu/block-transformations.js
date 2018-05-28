@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { noop } from 'lodash';
+import { noop, some } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -52,10 +52,9 @@ function BlockTransformations( { blocks, small = false, onTransform, onClick = n
 }
 export default compose( [
 	withSelect( ( select, { uids } ) => {
-		const { getEditorSettings, getBlocksByUID } = select( 'core/editor' );
-		const { templateLock } = getEditorSettings();
+		const { getBlockRootUID, getBlocksByUID, getLockedState } = select( 'core/editor' );
 		return {
-			isLocked: !! templateLock,
+			isLocked: some( uids, ( uid ) => !! getLockedState( getBlockRootUID( uid ) ) ),
 			blocks: getBlocksByUID( uids ),
 		};
 	} ),
