@@ -73,6 +73,7 @@ class BlockInsertionPoint extends Component {
 export default compose(
 	withSelect( ( select, { uid, rootUID, canShowInserter } ) => {
 		const {
+			canInsertBlockType,
 			getBlockIndex,
 			getBlockInsertionPoint,
 			getBlock,
@@ -80,6 +81,9 @@ export default compose(
 			isTyping,
 			getEditorSettings,
 		} = select( 'core/editor' );
+		const {
+			getDefaultBlockName,
+		} = select( 'core/blocks' );
 		const blockIndex = uid ? getBlockIndex( uid, rootUID ) : -1;
 		const insertIndex = blockIndex;
 		const insertionPoint = getBlockInsertionPoint();
@@ -91,14 +95,16 @@ export default compose(
 			( ! block || ! isUnmodifiedDefaultBlock( block ) )
 		);
 
+		const defaultBlockName = getDefaultBlockName();
 		return {
 			templateLock: getEditorSettings().templateLock,
 			showInserter: ! isTyping() && canShowInserter,
 			index: insertIndex,
 			showInsertionPoint,
+			canInsertDefaultBlock: canInsertBlockType( defaultBlockName, rootUID ),
 		};
 	} ),
-	ifCondition( ( { templateLock } ) => ! templateLock ),
+	ifCondition( ( { templateLock, canInsertDefaultBlock } ) => ! templateLock && canInsertDefaultBlock ),
 	withDispatch( ( dispatch ) => {
 		const { insertDefaultBlock, startTyping } = dispatch( 'core/editor' );
 		return {
