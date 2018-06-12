@@ -108,7 +108,7 @@ export function createInnerBlockList( uid, renderBlockMenu = noop ) {
 				const { insertBlocks, updateBlockListSettings } = dispatch( 'core/editor' );
 				return {
 					insertBlocks( blocks ) {
-						dispatch( insertBlocks( blocks, undefined, uid ) );
+						dispatch( insertBlocks( blocks, undefined, uid, true ) );
 					},
 					updateNestedSettings( settings ) {
 						dispatch( updateBlockListSettings( uid, settings ) );

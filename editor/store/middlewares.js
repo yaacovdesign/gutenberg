@@ -9,6 +9,7 @@ import { flowRight } from 'lodash';
  * Internal dependencies
  */
 import effects from './effects';
+import allowedBlocksMiddleware from '../utils/allowed-blocks-middleware';
 
 /**
  * Applies the custom middlewares used specifically in the editor module.
@@ -21,6 +22,7 @@ function applyMiddlewares( store ) {
 	const middlewares = [
 		refx( effects ),
 		multi,
+		allowedBlocksMiddleware,
 	];
 
 	let enhancedDispatch = () => {

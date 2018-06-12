@@ -286,19 +286,21 @@ export function insertBlock( block, index, rootUID ) {
  * Returns an action object used in signalling that an array of blocks should
  * be inserted, optionally at a specific index respective a root block list.
  *
- * @param {Object[]} blocks  Block objects to insert.
- * @param {?number}  index   Index at which block should be inserted.
- * @param {?string}  rootUID Optional root UID of block list to insert.
+ * @param {Object[]}  blocks                        Block objects to insert.
+ * @param {?number}   index                         Index at which block should be inserted.
+ * @param {?string}   rootUID                       Optional root UID of block list to insert.
+ * @param {?boolean}  ignoreAllowedBlocksValidation Optional root UID of block list to insert.
  *
  * @return {Object} Action object.
  */
-export function insertBlocks( blocks, index, rootUID ) {
+export function insertBlocks( blocks, index, rootUID, ignoreAllowedBlocksValidation ) {
 	return {
 		type: 'INSERT_BLOCKS',
 		blocks: castArray( blocks ),
 		index,
 		rootUID,
 		time: Date.now(),
+		ignoreAllowedBlocksValidation,
 	};
 }
 
