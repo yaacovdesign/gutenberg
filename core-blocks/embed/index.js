@@ -13,7 +13,7 @@ import classnames from 'classnames';
 import { __, sprintf } from '@wordpress/i18n';
 import { Component, Fragment, renderToString } from '@wordpress/element';
 import { Button, Placeholder, Spinner, SandBox } from '@wordpress/components';
-import { createBlock, getBlockAttributes, getBlockType } from '@wordpress/blocks';
+import { createBlock } from '@wordpress/blocks';
 import {
 	BlockControls,
 	BlockAlignmentToolbar,
@@ -169,7 +169,6 @@ function getEmbedBlockSettings( { title, description, icon, category = 'embed', 
 							}
 							// Preview block for oEmbed unsupported URLs (again, no patterns can match these)
 							if ( includes( html, 'class="wp-block-link-preview"' ) ) {
-								const linkPreview = getBlockType( 'core/link-preview' );
 								this.props.onReplace( createBlock( 'core/link-preview', { url: url } ) );
 								return;
 							}

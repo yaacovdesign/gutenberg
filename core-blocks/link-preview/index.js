@@ -17,7 +17,7 @@ import './editor.scss';
 
 export const name = 'core/link-preview';
 
-const edit =  class extends Component {
+const edit = class extends Component {
 	constructor() {
 		super( ...arguments );
 		this.MODES = {
@@ -31,7 +31,7 @@ const edit =  class extends Component {
 			mode: this.MODES.INPUT_URL,
 			images: [],
 			selectedImage: undefined,
-		}
+		};
 		this.setupState = this.setupState.bind( this );
 		this.setURL = this.setURL.bind( this );
 		this.previousImage = this.previousImage.bind( this );
@@ -52,7 +52,7 @@ const edit =  class extends Component {
 		const currentIndex = indexOf( images, selectedImage );
 		let nextImage;
 		if ( images.length === currentIndex + 1 ) {
-			nextImage = images[0];
+			nextImage = images[ 0 ];
 		} else {
 			nextImage = images[ currentIndex + 1 ];
 		}
@@ -86,16 +86,16 @@ const edit =  class extends Component {
 			// set up the images with the first image as the selected image
 			this.setState( {
 				images: uniq( images ),
-				selectedImage: images[0],
+				selectedImage: images[ 0 ],
 			} );
-			this.props.setAttributes( { images: [ images[0], ] } );
+			this.props.setAttributes( { images: [ images[ 0 ] ] } );
 		}
 
 		if ( ! url ) {
-			this.setState( { mode: this.MODES.INPUT_URL } )
+			this.setState( { mode: this.MODES.INPUT_URL } );
 			return;
 		}
-		
+
 		this.setState( { url } );
 
 		if ( url && ! hasPreviewData ) {
@@ -119,7 +119,6 @@ const edit =  class extends Component {
 		}
 
 		this.setState( { mode: this.MODES.EDITING } );
-
 	}
 
 	componentWillUnmount() {
@@ -136,7 +135,7 @@ const edit =  class extends Component {
 	}
 
 	render() {
-		const { attributes, setAttributes } = this.props;
+		const { attributes } = this.props;
 		const { mode, url, selectedImage, images } = this.state;
 		const { FETCH, CANT_FETCH, INPUT_URL } = this.MODES;
 		const isEditing = mode === INPUT_URL || mode === CANT_FETCH || mode === FETCH;
@@ -171,17 +170,17 @@ const edit =  class extends Component {
 		}
 
 		return (
-			<div class="wp-block-link-preview">
-				<div class="wp-block-link-preview__textinfo">
+			<div className="wp-block-link-preview">
+				<div className="wp-block-link-preview__textinfo">
 					<p><a href={ attributes.url }>{ attributes.title }</a></p>
-					<p class="wp-block-link-preview__description">{ attributes.description }</p>
+					<p className="wp-block-link-preview__description">{ attributes.description }</p>
 				</div>
 				{ selectedImage && (
-					<div class="wp-block-link-preview__image">
-						<div class="wp-block-link-preview__image__selected">
-							<img src={ selectedImage.src } />
+					<div className="wp-block-link-preview__image">
+						<div className="wp-block-link-preview__image__selected">
+							<img src={ selectedImage.src } alt="" />
 						</div>
-						<div class="wp-block-link-preview__image__tools">
+						<div className="wp-block-link-preview__image__tools">
 							{ hasMultipleImages && <Button onClick={ this.previousImage }>&lt;</Button> }
 							<Button onClick={ this.removeImage }>remove</Button>
 							{ hasMultipleImages && <Button onClick={ this.nextImage }>&gt;</Button> }
@@ -193,38 +192,37 @@ const edit =  class extends Component {
 	}
 };
 
-const save = function ( { attributes, setAttributes, className } ) {
+const save = function( { attributes } ) {
 	return (
-		<div class="wp-block-link-preview">
-			<div class="wp-block-link-preview__textinfo">
+		<div className="wp-block-link-preview">
+			<div className="wp-block-link-preview__textinfo">
 				<p><a href={ attributes.url }>{ attributes.title }</a></p>
-				<p class="wp-block-link-preview__description">{ attributes.description }</p>
+				<p className="wp-block-link-preview__description">{ attributes.description }</p>
 			</div>
 			{ attributes.images.length > 0 && (
-				<div class="wp-block-link-preview__image">
+				<div className="wp-block-link-preview__image">
 					{ attributes.images.map(
-						( image ) => <img src={ image.src } />
+						( image ) => <img src={ image.src } alt="" key={ image.src } />
 					) }
 				</div>
 			) }
 		</div>
 	);
-}
-
+};
 
 export const settings = {
 	title: __( 'Link preview' ),
 	description: __( 'Add a preview for a link.' ),
 	category: 'embed',
 	attributes: {
-	    images: {
-	        source: 'query',
-	        selector: 'img',
-	        query: {
-	            src: { source: 'attribute', attribute: 'src' },
-	        },
-	        default: [],
-	    },
+		images: {
+			source: 'query',
+			selector: 'img',
+			query: {
+				src: { source: 'attribute', attribute: 'src' },
+			},
+			default: [],
+		},
 		url: {
 			source: 'attribute',
 			selector: 'a',
