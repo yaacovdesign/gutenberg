@@ -17,8 +17,6 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 
 	/**
 	 * Constructs the controller.
-	 *
-	 * @access public
 	 */
 	public function __construct() {
 		$this->api_namespace = 'gutenberg/v1';
@@ -27,8 +25,6 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 
 	/**
 	 * Registers the necessary REST API routes.
-	 *
-	 * @access public
 	 */
 	public function register_routes() {
 
