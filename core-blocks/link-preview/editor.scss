@@ -1,13 +1,13 @@
-.wp-block-link-preview {
-	.wp-block-link-preview__image {
+.wp-block-embed-link-preview {
+	.wp-block-embed-link-preview__image {
 		text-align: center;
 		img {
 			display: block;
 		}
-		.wp-block-link-preview__image__selected {
+		.wp-block-embed-link-preview__image__selected {
 			height: 200px;
 		}
-		.wp-block-link-preview__image__tools {
+		.wp-block-embed-link-preview__image__tools {
 			display: flex;
 			button {
 				display: inline;

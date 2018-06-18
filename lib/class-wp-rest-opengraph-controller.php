@@ -39,7 +39,7 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 				'permission_callback' => array( $this, 'get_preview_permissions_check' ),
 				'args'                => array(
 					'url' => array(
-						'description'       => __( 'The URL of the resource for which to fetch oEmbed data.' ),
+						'description'       => __( 'The URL of the resource for which to fetch OpenGraph data.', 'gutenberg' ),
 						'type'              => 'string',
 						'required'          => true,
 						'sanitize_callback' => 'esc_url_raw',
@@ -60,7 +60,7 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			return new WP_Error(
 				'rest_forbidden',
-				__( 'Sorry, you are not allowed to make OpenGraph requests.' ),
+				__( 'Sorry, you are not allowed to make OpenGraph requests.', 'gutenberg' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}

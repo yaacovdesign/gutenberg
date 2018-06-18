@@ -15,7 +15,7 @@ import { Button, Placeholder, Spinner } from '@wordpress/components';
 import './style.scss';
 import './editor.scss';
 
-export const name = 'core/link-preview';
+export const name = 'core-embed/link-preview';
 
 const edit = class extends Component {
 	constructor() {
@@ -170,17 +170,17 @@ const edit = class extends Component {
 		}
 
 		return (
-			<div className="wp-block-link-preview">
-				<div className="wp-block-link-preview__textinfo">
+			<div className="wp-block-embed-link-preview">
+				<div className="wp-block-embed-link-preview__textinfo">
 					<p><a href={ attributes.url }>{ attributes.title }</a></p>
-					<p className="wp-block-link-preview__description">{ attributes.description }</p>
+					<p className="wp-block-embed-link-preview__description">{ attributes.description }</p>
 				</div>
 				{ selectedImage && (
-					<div className="wp-block-link-preview__image">
-						<div className="wp-block-link-preview__image__selected">
+					<div className="wp-block-embed-link-preview__image">
+						<div className="wp-block-embed-link-preview__image__selected">
 							<img src={ selectedImage.src } alt="" />
 						</div>
-						<div className="wp-block-link-preview__image__tools">
+						<div className="wp-block-embed-link-preview__image__tools">
 							{ hasMultipleImages && <Button onClick={ this.previousImage }>&lt;</Button> }
 							<Button onClick={ this.removeImage }>remove</Button>
 							{ hasMultipleImages && <Button onClick={ this.nextImage }>&gt;</Button> }
@@ -194,13 +194,13 @@ const edit = class extends Component {
 
 const save = function( { attributes } ) {
 	return (
-		<div className="wp-block-link-preview">
-			<div className="wp-block-link-preview__textinfo">
+		<div className="wp-block-embed-link-preview">
+			<div className="wp-block-embed-link-preview__textinfo">
 				<p><a href={ attributes.url }>{ attributes.title }</a></p>
-				<p className="wp-block-link-preview__description">{ attributes.description }</p>
+				<p className="wp-block-embed-link-preview__description">{ attributes.description }</p>
 			</div>
 			{ attributes.images.length > 0 && (
-				<div className="wp-block-link-preview__image">
+				<div className="wp-block-embed-link-preview__image">
 					{ attributes.images.map(
 						( image ) => <img src={ image.src } alt="" key={ image.src } />
 					) }
@@ -234,7 +234,7 @@ export const settings = {
 		},
 		description: {
 			source: 'text',
-			selector: 'p.wp-block-link-preview__description',
+			selector: 'p.wp-block-embed-link-preview__description',
 		},
 	},
 	edit,
