@@ -167,11 +167,7 @@ function getEmbedBlockSettings( { title, description, icon, category = 'embed', 
 									return;
 								}
 							}
-							// Preview block for oEmbed unsupported URLs (again, no patterns can match these)
-							if ( includes( html, 'class="wp-block-link-preview"' ) ) {
-								this.props.onReplace( createBlock( 'core/link-preview', { url: url } ) );
-								return;
-							}
+
 							if ( html !== oEmbedLinkFallback ) {
 								this.setState( { html, type, providerNameSlug } );
 								setAttributes( { type, providerNameSlug } );
@@ -179,8 +175,9 @@ function getEmbedBlockSettings( { title, description, icon, category = 'embed', 
 								this.setState( { html: this.getPhotoHtml( obj ), type, providerNameSlug } );
 								setAttributes( { type, providerNameSlug } );
 							} else {
-								// No html, no custom type that we support, replace with a link-preview block
-								this.props.onReplace( createBlock( 'core/link-preview', { url } ) );
+								// No html, no custom type that we support, replace with a link-preview 
+								console.log('trying to change');
+								this.props.onReplace( createBlock( 'core-embed/link-preview', { url } ) );
 							}
 							this.setState( { fetching: false } );
 						},
