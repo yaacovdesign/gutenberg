@@ -214,6 +214,7 @@ export const settings = {
 	title: __( 'Link preview' ),
 	description: __( 'Add a preview for a link.' ),
 	category: 'embed',
+	icon: 'admin-links',
 	attributes: {
 		images: {
 			source: 'query',

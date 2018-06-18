@@ -131,8 +131,12 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 		);
 
 		$response     = wp_remote_get( $url, $request_args );
+		if ( is_wp_error( $response ) ) {
+			return false;
+		}
+
 		$response_obj = $response['http_response']->get_response_object();
-		if ( is_wp_error( $response ) || ! $response_obj->success ) {
+		if ( ! $response_obj->success ) {
 			return false;
 		}
 
