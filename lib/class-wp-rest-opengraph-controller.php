@@ -21,7 +21,7 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 	 * @access public
 	 */
 	public function __construct() {
-		$this->namespace = 'gutenberg/v1';
+		$this->api_namespace = 'gutenberg/v1';
 		$this->rest_base = 'opengraph';
 	}
 
@@ -32,7 +32,7 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 	 */
 	public function register_routes() {
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base, array(
+		register_rest_route( $this->api_namespace, '/' . $this->rest_base, array(
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_preview' ),
@@ -74,7 +74,7 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 	 *
 	 * @since 3.x
 	 *
-	 * @see gutenberg_opengraph
+	 * @see WP_REST_OpenGraph_Controller#generate_preview
 	 * @param WP_REST_Request $request Full data about the request.
 	 * @return object|WP_Error response data or WP_Error on failure.
 	 */
@@ -116,15 +116,25 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 		return $data;
 	}
 
+	/**
+	 * Generates preview data.
+	 *
+	 * Returns an array of preview data.
+	 *
+	 * @since 3.x
+	 *
+	 * @param array $args Information about the URL, 'url' and 'blog_id' are required.
+	 * @return array|bool Array of preview data, or false on failure.
+	 */
 	private function generate_preview( $args ) {
-		$url = $args['url'];
+		$url     = $args['url'];
 		$blog_id = $args['blog_id'];
 
 		$request_args = array(
 			'user-agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36',
 		);
 
-		$response = wp_remote_get( $url, $request_args );
+		$response     = wp_remote_get( $url, $request_args );
 		$response_obj = $response['http_response']->get_response_object();
 		if ( is_wp_error( $response ) || ! $response_obj->success ) {
 			return false;
@@ -138,7 +148,7 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 			'url' => $url,
 		);
 
-		// extract any OpenGraph data
+		// Extract any OpenGraph data.
 		$matches = array();
 		preg_match_all( '/<meta .*property="og:([a-z]+)" content="([^"]+)"/', $body, $matches );
 		foreach ( $matches[1] as $index => $property ) {
@@ -159,9 +169,9 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 			$match = array();
 			preg_match( '|<p.*>.+?</p>|', $body, $match );
 			if ( $match ) {
-				// first bunch of words in the first paragraph
+				// First bunch of words in the first paragraph.
 				$extract = substr( strip_tags( $match[0] ), 0, 500 );
-				$words = str_word_count( $extract, 1 );
+				$words   = str_word_count( $extract, 1 );
 				$data['description'] = join( ' ', array_slice( $words, 0, -1 ) ) . '...';
 			}
 		}
@@ -174,12 +184,12 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 			$matches = array();
 			preg_match_all( '|<img [^>]*src=["\']([^"\']+)["\']|', $body, $matches );
 			if ( $matches ) {
-				$parsed_url = parse_url( $url );
+				$parsed_url    = parse_url( $url );
 				$path_segments = explode( '/', $parsed_url['path'] );
-				$base_path = $parsed_url['scheme'] . '://' . $parsed_url['host'] . join( '/', array_slice( $path_segments, 0, -1 ) ) . '/';
-				$images = array();
+				$base_path     = $parsed_url['scheme'] . '://' . $parsed_url['host'] . join( '/', array_slice( $path_segments, 0, -1 ) ) . '/';
+				$images        = array();
 				foreach ( $matches[1] as $imgsrc ) {
-					// make full urls out of the image src
+					// Make full urls out of the image src.
 					if ( '//' === substr( $imgsrc, 0, 2 ) ) {
 						$full_img_url = 'https:' . $imgsrc;
 					} elseif ( '/' === substr( $imgsrc, 0, 1 ) ) {
