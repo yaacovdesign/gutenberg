@@ -20,7 +20,7 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 	 */
 	public function __construct() {
 		$this->api_namespace = 'gutenberg/v1';
-		$this->rest_base = 'opengraph';
+		$this->rest_base     = 'opengraph';
 	}
 
 	/**
@@ -138,7 +138,7 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 
 		// Get the URL from the response object, so we deal with the actual URL
 		// that we ended up on.
-		$url = $response_obj->url;
+		$url  = $response_obj->url;
 		$body = $response['body'];
 		$data = array(
 			'url' => $url,
@@ -166,8 +166,8 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 			preg_match( '|<p.*>.+?</p>|', $body, $match );
 			if ( $match ) {
 				// First bunch of words in the first paragraph.
-				$extract = substr( strip_tags( $match[0] ), 0, 500 );
-				$words   = str_word_count( $extract, 1 );
+				$extract             = substr( strip_tags( $match[0] ), 0, 500 );
+				$words               = str_word_count( $extract, 1 );
 				$data['description'] = join( ' ', array_slice( $words, 0, -1 ) ) . '...';
 			}
 		}
