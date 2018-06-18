@@ -34,11 +34,11 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 
 		register_rest_route( $this->namespace, '/' . $this->rest_base, array(
 			array(
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => array( $this, 'get_preview' ),
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_preview' ),
 				'permission_callback' => array( $this, 'get_preview_permissions_check' ),
-				'args'     => array(
-					'url'      => array(
+				'args'                => array(
+					'url' => array(
 						'description'       => __( 'The URL of the resource for which to fetch oEmbed data.' ),
 						'type'              => 'string',
 						'required'          => true,
@@ -58,10 +58,11 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 	 */
 	public function get_preview_permissions_check() {
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new WP_Error( 
+			return new WP_Error(
 				'rest_forbidden',
-				__( 'Sorry, you are not allowed to make proxied oEmbed requests.' ),
-				array( 'status' => rest_authorization_required_code() ) );
+				__( 'Sorry, you are not allowed to make OpenGraph requests.' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
 		}
 		return true;
 	}
@@ -88,11 +89,12 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 		// Serve data from cache if set.
 		unset( $args['_wpnonce'] );
 		$cache_key = 'oembed_' . md5( serialize( $args ) );
-		$data = get_transient( $cache_key );
+		$data      = get_transient( $cache_key );
+		$url       = $request['url'];
+
 		if ( ! empty( $data ) ) {
 			return $data;
 		}
-		$url = $request['url'];
 
 		$data = $this->generate_preview( $args );
 		if ( ! $data ) {
@@ -178,9 +180,9 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 				$images = array();
 				foreach ( $matches[1] as $imgsrc ) {
 					// make full urls out of the image src
-					if ( '//' === substr( $imgsrc, 0, 2) ) {
+					if ( '//' === substr( $imgsrc, 0, 2 ) ) {
 						$full_img_url = 'https:' . $imgsrc;
-					} elseif ( '/' === substr( $imgsrc, 0, 1) ) {
+					} elseif ( '/' === substr( $imgsrc, 0, 1 ) ) {
 						$full_img_url = $parsed_url['scheme'] . '://' . $parsed_url['host'] . $imgsrc;
 					} elseif ( preg_match( '|^https?://.+|', $imgsrc ) ) {
 						$full_img_url = $imgsrc;
