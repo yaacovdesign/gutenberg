@@ -175,8 +175,7 @@ function getEmbedBlockSettings( { title, description, icon, category = 'embed', 
 								this.setState( { html: this.getPhotoHtml( obj ), type, providerNameSlug } );
 								setAttributes( { type, providerNameSlug } );
 							} else {
-								// No html, no custom type that we support, replace with a link-preview 
-								console.log('trying to change');
+								// No html, no custom type that we support, replace with a link-preview.
 								this.props.onReplace( createBlock( 'core-embed/link-preview', { url } ) );
 							}
 							this.setState( { fetching: false } );
