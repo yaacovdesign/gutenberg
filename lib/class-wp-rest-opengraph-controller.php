@@ -19,8 +19,13 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 	 * Constructs the controller.
 	 */
 	public function __construct() {
-		$this->api_namespace = 'gutenberg/v1';
-		$this->rest_base     = 'opengraph';
+		$this->api_namespace    = 'gutenberg/v1';
+		$this->rest_base        = 'opengraph';
+		$this->min_resolution   = 128;
+		$this->thumb_resolution = 200;
+		$this->request_args     = array(
+			'user-agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36',
+		);
 	}
 
 	/**
@@ -84,7 +89,7 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 
 		// Serve data from cache if set.
 		unset( $args['_wpnonce'] );
-		$cache_key = 'oembed_' . md5( serialize( $args ) );
+		$cache_key = 'opengraph_' . md5( serialize( $args ) );
 		$data      = get_transient( $cache_key );
 		$url       = $request['url'];
 
@@ -93,7 +98,7 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 		}
 
 		$data = $this->generate_preview( $args );
-		if ( ! $data ) {
+		if ( is_wp_error( $data ) ) {
 			return new WP_Error( 'opengraph_invalid_url', get_status_header_desc( 404 ), array( 'status' => 404 ) );
 		}
 
@@ -113,6 +118,73 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Sideloads the remote image if all conditions are met and the image can be fetched.
+	 *
+	 * Returns the local URL of the uploaded image.
+	 *
+	 * @since 3.x
+	 *
+	 * @param string $url URL of the image.
+	 * @return string|WP_Error Local URL or WP_Error on failure.
+	 */
+	private function maybe_sideload_remote_image( $url ) {
+		// Need to require these files to get access to media_handle_sideload.
+		if ( ! function_exists( 'media_handle_upload' ) ) {
+			require_once( ABSPATH . "wp-admin" . '/includes/image.php' );
+			require_once( ABSPATH . "wp-admin" . '/includes/file.php' );
+			require_once( ABSPATH . "wp-admin" . '/includes/media.php' );
+		}
+
+		$tmp_filename = tempnam( sys_get_temp_dir(), basename( $url ) );
+		$response = wp_remote_get( $url, $this->request_args );
+		if ( is_wp_error( $response ) ) {
+			return new WP_Error( 'opengraph_cant_fetch_image', __( 'Could not fetch image.', 'opengraph' ) );
+		}
+
+		file_put_contents( $tmp_filename, $response['body'] );
+		$image = wp_get_image_editor( $tmp_filename );
+		if ( is_wp_error( $image ) ) {
+			unlink( $tmp_filename );
+			return new WP_Error( 'opengraph_cant_get_image_editor', __( 'Could not get an image editor.', 'opengraph' ) );
+		}
+
+		$img_size = $image->get_size();
+		if ( $img_size['width'] < $this->min_resolution && $img_size['height'] < $this->min_resolution ) {
+			unlink( $tmp_filename );
+			return new WP_Error( 'opengraph_image_too_small', __( 'Fetched image was too small.', 'opengraph' ) );
+		}
+
+		$resize = $image->resize( $this->thumb_resolution, $this->thumb_resolution );
+		if ( is_wp_error( $resize ) ) {
+			unlink( $tmp_filename );
+			return new WP_Error( 'opengraph_image_resize_fail', __( 'Failed to resize the image.', 'opengraph' ) );
+		}
+
+		$saved = $image->save( $tmp_filename );
+		if ( is_wp_error( $saved ) ) {
+			unlink( $tmp_filename );
+			return new WP_Error( 'opengraph_image_save_fail', __( 'Failed to save the image.', 'opengraph' ) );
+		}
+
+		$mime_type = $response['headers']->offsetGet( 'content-type' );
+		$file = array(
+			'name'     => basename( $url ),
+			'type'     => $mime_type,
+			'tmp_name' => $tmp_filename,
+			'error'    => 0,
+			'size'     => filesize( $tmp_filename ),
+		);
+
+		$attachment_id = media_handle_sideload( $file, 0 );
+		if ( is_wp_error( $attachment_id ) ) {
+			unlink( $tmp_filename );
+			return $attachment_id;
+		}
+
+		return wp_get_attachment_url( $attachment_id );
+	}
+
+	/**
 	 * Generates preview data.
 	 *
 	 * Returns an array of preview data.
@@ -126,18 +198,14 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 		$url     = $args['url'];
 		$blog_id = $args['blog_id'];
 
-		$request_args = array(
-			'user-agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36',
-		);
-
-		$response = wp_remote_get( $url, $request_args );
+		$response = wp_remote_get( $url, $this->request_args );
 		if ( is_wp_error( $response ) ) {
-			return false;
+			return new WP_Error( 'opengraph_fetch_fail', __( 'Failed to fetch the URL.', 'opengraph' ) );
 		}
 
 		$response_obj = $response['http_response']->get_response_object();
 		if ( ! $response_obj->success ) {
-			return false;
+			return new WP_Error( 'opengraph_fetch_fail', __( 'Failed to fetch the URL.', 'opengraph' ) );
 		}
 
 		// Get the URL from the response object, so we deal with the actual URL
@@ -188,7 +256,8 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 				$path_segments = explode( '/', $parsed_url['path'] );
 				$base_path     = $parsed_url['scheme'] . '://' . $parsed_url['host'] . join( '/', array_slice( $path_segments, 0, -1 ) ) . '/';
 				$images        = array();
-				foreach ( $matches[1] as $imgsrc ) {
+				$imgsrcs       = array_slice( $matches[1], 0, 3 );
+				foreach ( $imgsrcs as $imgsrc ) {
 					// Make full urls out of the image src.
 					if ( '//' === substr( $imgsrc, 0, 2 ) ) {
 						$full_img_url = 'https:' . $imgsrc;
@@ -199,12 +268,20 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 					} else {
 						$full_img_url = $base_path . $imgsrc;
 					}
-					$images[] = array( 'src' => strip_tags( $full_img_url ) );
+					$full_img_url = strip_tags( $full_img_url );
+					$local_url = $this->maybe_sideload_remote_image( $full_img_url );
+					if ( ! is_wp_error( $local_url ) ) {
+						$images[] = array( 'src' => $local_url );
+					}
 				}
 				$data['images'] = $images;
 			}
 		} else {
-			$data['images'] = array( array( 'src' => strip_tags( $data['image'] ) ) );
+			$data['images'] = array();
+			$local_url = $this->maybe_sideload_remote_image( $data['image'] );
+			if ( ! is_wp_error( $local_url ) ) {
+				$data['images'][] = array( 'src' => $local_url );
+			}
 			unset( $data['image'] );
 		}
 		return $data;
