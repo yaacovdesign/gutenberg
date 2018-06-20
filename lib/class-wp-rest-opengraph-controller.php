@@ -283,7 +283,7 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 					} else {
 						$full_img_url = $base_path . $imgsrc;
 					}
-					$local_url    = $this->maybe_sideload_remote_image( $full_img_url );
+					$local_url = $this->maybe_sideload_remote_image( $full_img_url );
 					if ( ! is_wp_error( $local_url ) ) {
 						$images[] = array( 'src' => $local_url );
 					}
