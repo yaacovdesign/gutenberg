@@ -130,44 +130,44 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 	private function maybe_sideload_remote_image( $url ) {
 		// Need to require these files to get access to media_handle_sideload.
 		if ( ! function_exists( 'media_handle_upload' ) ) {
-			require_once( ABSPATH . "wp-admin" . '/includes/image.php' );
-			require_once( ABSPATH . "wp-admin" . '/includes/file.php' );
-			require_once( ABSPATH . "wp-admin" . '/includes/media.php' );
+			require_once( ABSPATH . 'wp-admin/includes/image.php' );
+			require_once( ABSPATH . 'wp-admin/includes/file.php' );
+			require_once( ABSPATH . 'wp-admin/includes/media.php' );
 		}
 
 		$tmp_filename = tempnam( sys_get_temp_dir(), basename( $url ) );
-		$response = wp_remote_get( $url, $this->request_args );
+		$response     = wp_remote_get( $url, $this->request_args );
 		if ( is_wp_error( $response ) ) {
-			return new WP_Error( 'opengraph_cant_fetch_image', __( 'Could not fetch image.', 'opengraph' ) );
+			return new WP_Error( 'opengraph_cant_fetch_image', __( 'Could not fetch image.', 'gutenberg' ) );
 		}
 
 		file_put_contents( $tmp_filename, $response['body'] );
 		$image = wp_get_image_editor( $tmp_filename );
 		if ( is_wp_error( $image ) ) {
 			unlink( $tmp_filename );
-			return new WP_Error( 'opengraph_cant_get_image_editor', __( 'Could not get an image editor.', 'opengraph' ) );
+			return new WP_Error( 'opengraph_cant_get_image_editor', __( 'Could not get an image editor.', 'gutenberg' ) );
 		}
 
 		$img_size = $image->get_size();
 		if ( $img_size['width'] < $this->min_resolution && $img_size['height'] < $this->min_resolution ) {
 			unlink( $tmp_filename );
-			return new WP_Error( 'opengraph_image_too_small', __( 'Fetched image was too small.', 'opengraph' ) );
+			return new WP_Error( 'opengraph_image_too_small', __( 'Fetched image was too small.', 'gutenberg' ) );
 		}
 
 		$resize = $image->resize( $this->thumb_resolution, $this->thumb_resolution );
 		if ( is_wp_error( $resize ) ) {
 			unlink( $tmp_filename );
-			return new WP_Error( 'opengraph_image_resize_fail', __( 'Failed to resize the image.', 'opengraph' ) );
+			return new WP_Error( 'opengraph_image_resize_fail', __( 'Failed to resize the image.', 'gutenberg' ) );
 		}
 
 		$saved = $image->save( $tmp_filename );
 		if ( is_wp_error( $saved ) ) {
 			unlink( $tmp_filename );
-			return new WP_Error( 'opengraph_image_save_fail', __( 'Failed to save the image.', 'opengraph' ) );
+			return new WP_Error( 'opengraph_image_save_fail', __( 'Failed to save the image.', 'gutenberg' ) );
 		}
 
 		$mime_type = $response['headers']->offsetGet( 'content-type' );
-		$file = array(
+		$file      = array(
 			'name'     => basename( $url ),
 			'type'     => $mime_type,
 			'tmp_name' => $tmp_filename,
@@ -200,12 +200,12 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 
 		$response = wp_remote_get( $url, $this->request_args );
 		if ( is_wp_error( $response ) ) {
-			return new WP_Error( 'opengraph_fetch_fail', __( 'Failed to fetch the URL.', 'opengraph' ) );
+			return new WP_Error( 'opengraph_fetch_fail', __( 'Failed to fetch the URL.', 'gutenberg' ) );
 		}
 
 		$response_obj = $response['http_response']->get_response_object();
 		if ( ! $response_obj->success ) {
-			return new WP_Error( 'opengraph_fetch_fail', __( 'Failed to fetch the URL.', 'opengraph' ) );
+			return new WP_Error( 'opengraph_fetch_fail', __( 'Failed to fetch the URL.', 'gutenberg' ) );
 		}
 
 		// Get the URL from the response object, so we deal with the actual URL
@@ -269,7 +269,7 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 						$full_img_url = $base_path . $imgsrc;
 					}
 					$full_img_url = strip_tags( $full_img_url );
-					$local_url = $this->maybe_sideload_remote_image( $full_img_url );
+					$local_url    = $this->maybe_sideload_remote_image( $full_img_url );
 					if ( ! is_wp_error( $local_url ) ) {
 						$images[] = array( 'src' => $local_url );
 					}
@@ -278,7 +278,7 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 			}
 		} else {
 			$data['images'] = array();
-			$local_url = $this->maybe_sideload_remote_image( $data['image'] );
+			$local_url      = $this->maybe_sideload_remote_image( $data['image'] );
 			if ( ! is_wp_error( $local_url ) ) {
 				$data['images'][] = array( 'src' => $local_url );
 			}

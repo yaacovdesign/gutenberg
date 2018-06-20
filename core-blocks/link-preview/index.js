@@ -10,7 +10,7 @@ import { uniq, indexOf } from 'lodash';
 import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
 import apiRequest from '@wordpress/api-request';
-import { Button, IconButton, Placeholder, Spinner, Dashicon } from '@wordpress/components';
+import { Button, IconButton, Placeholder, Spinner } from '@wordpress/components';
 
 import './style.scss';
 import './editor.scss';
