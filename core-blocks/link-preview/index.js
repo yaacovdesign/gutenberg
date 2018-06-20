@@ -10,7 +10,7 @@ import { uniq, indexOf } from 'lodash';
 import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
 import apiRequest from '@wordpress/api-request';
-import { Button, Placeholder, Spinner } from '@wordpress/components';
+import { Button, IconButton, Placeholder, Spinner, Dashicon } from '@wordpress/components';
 
 import './style.scss';
 import './editor.scss';
@@ -135,7 +135,7 @@ const edit = class extends Component {
 	}
 
 	render() {
-		const { attributes } = this.props;
+		const { attributes, isSelected } = this.props;
 		const { mode, url, selectedImage, images } = this.state;
 		const { FETCH, CANT_FETCH, INPUT_URL } = this.MODES;
 		const isEditing = mode === INPUT_URL || mode === CANT_FETCH || mode === FETCH;
@@ -180,11 +180,13 @@ const edit = class extends Component {
 						<div className="wp-block-embed-link-preview__image__selected">
 							<img src={ selectedImage.src } alt="" />
 						</div>
+						{ isSelected &&
 						<div className="wp-block-embed-link-preview__image__tools">
-							{ hasMultipleImages && <Button onClick={ this.previousImage }>&lt;</Button> }
-							<Button onClick={ this.removeImage }>remove</Button>
-							{ hasMultipleImages && <Button onClick={ this.nextImage }>&gt;</Button> }
+							{ hasMultipleImages && <IconButton aria-label="Previous image" icon="arrow-left-alt2" onClick={ this.previousImage } /> }
+							<IconButton icon="no" aria-label="Remove image" onClick={ this.removeImage } />
+							{ hasMultipleImages && <IconButton aria-label="Next image" icon="arrow-left-alt2" onClick={ this.nextImage } /> }
 						</div>
+						}
 					</div>
 				) }
 			</div>
