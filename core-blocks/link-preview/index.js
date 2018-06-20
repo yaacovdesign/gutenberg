@@ -122,7 +122,7 @@ const edit = class extends Component {
 	}
 
 	componentWillUnmount() {
-		// can't abort the fetch promise, so let it know we will unmount
+		// can't abort the promise, so let it know we will unmount
 		this.unmounting = true;
 	}
 
