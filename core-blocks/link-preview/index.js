@@ -8,7 +8,7 @@ import { uniq, indexOf } from 'lodash';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Component, Fragment } from '@wordpress/element';
+import { Component, Fragment, RawHTML } from '@wordpress/element';
 import apiRequest from '@wordpress/api-request';
 import { Button, IconButton, Placeholder, Spinner } from '@wordpress/components';
 
@@ -172,8 +172,8 @@ const edit = class extends Component {
 		return (
 			<div className="wp-block-embed-link-preview">
 				<div className="wp-block-embed-link-preview__textinfo">
-					<p><a href={ attributes.url }>{ attributes.title }</a></p>
-					<p className="wp-block-embed-link-preview__description">{ attributes.description }</p>
+					<p><a href={ attributes.url }><RawHTML>{ attributes.title }</RawHTML></a></p>
+					<p className="wp-block-embed-link-preview__description"><RawHTML>{ attributes.description }</RawHTML></p>
 				</div>
 				{ selectedImage && (
 					<div className="wp-block-embed-link-preview__image">
@@ -198,8 +198,8 @@ const save = function( { attributes } ) {
 	return (
 		<div className="wp-block-embed-link-preview">
 			<div className="wp-block-embed-link-preview__textinfo">
-				<p><a href={ attributes.url }>{ attributes.title }</a></p>
-				<p className="wp-block-embed-link-preview__description">{ attributes.description }</p>
+				<p><a href={ attributes.url }><RawHTML>{ attributes.title }</RawHTML></a></p>
+				<p className="wp-block-embed-link-preview__description"><RawHTML>{ attributes.description }</RawHTML></p>
 			</div>
 			{ attributes.images.length > 0 && (
 				<div className="wp-block-embed-link-preview__image">

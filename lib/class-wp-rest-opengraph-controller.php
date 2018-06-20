@@ -187,6 +187,18 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Makes sure a string is free from tags and escaped, so it's safe for embedding.
+	 *
+	 * @since 3.x
+	 *
+	 * @param string $content Content to sanitize.
+	 * @return string Safe content.
+	 */
+	private function sanitize_content( $content ) {
+		return esc_html( strip_tags( $content ) );
+	}
+
+	/**
 	 * Generates preview data.
 	 *
 	 * Returns an array of preview data.
@@ -240,14 +252,15 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 			preg_match( '|<p.*>.+?</p>|', $body, $match );
 			if ( $match ) {
 				// First bunch of words in the first paragraph.
-				$extract             = substr( strip_tags( $match[0] ), 0, 500 );
+				$content             = $this->sanitize_content( $match[0] );
+				$extract             = substr( $content, 0, 500 );
 				$words               = str_word_count( $extract, 1 );
 				$data['description'] = join( ' ', array_slice( $words, 0, -1 ) ) . '...';
 			}
 		}
 
 		foreach ( $data as $index => $value ) {
-			$data[ $index ] = strip_tags( $value );
+			$data[ $index ] = $this->sanitize_content( $value );
 		}
 
 		if ( ! isset( $data['image'] ) || empty( $data['image'] ) ) {
@@ -270,7 +283,6 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 					} else {
 						$full_img_url = $base_path . $imgsrc;
 					}
-					$full_img_url = strip_tags( $full_img_url );
 					$local_url    = $this->maybe_sideload_remote_image( $full_img_url );
 					if ( ! is_wp_error( $local_url ) ) {
 						$images[] = array( 'src' => $local_url );
