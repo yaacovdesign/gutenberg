@@ -178,7 +178,7 @@ function getEmbedBlockSettings( { title, description, icon, category = 'embed', 
 								// No html, no custom type that we support, replace with a link-preview.
 								this.props.onReplace(
 									[
-										createBlock( 'core/paragraph', { content: <a href={ url }>{ url }</a> } ),
+										createBlock( 'core/paragraph', { content: [ <a href={ url }>{ url }</a>, '' ] } ),
 										createBlock( 'core-embed/link-preview', { url } ),
 									]
 								);
