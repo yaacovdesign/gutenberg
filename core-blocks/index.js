@@ -24,6 +24,7 @@ import * as columns from './columns';
 import * as coverImage from './cover-image';
 import * as embed from './embed';
 import * as freeform from './freeform';
+import * as halfImageText from './layout-half-image-text';
 import * as html from './html';
 import * as latestPosts from './latest-posts';
 import * as list from './list';
@@ -41,8 +42,17 @@ import * as textColumns from './text-columns';
 import * as verse from './verse';
 import * as video from './video';
 
+const registerArrayOfBlocks = ( blocks ) => {
+	blocks.forEach( ( { name, settings, children } ) => {
+		registerBlockType( name, settings );
+		if ( children && children.length ) {
+			registerArrayOfBlocks( children );
+		}
+	} );
+};
+
 export const registerCoreBlocks = () => {
-	[
+	registerArrayOfBlocks( [
 		// Common blocks are grouped at the top to prioritize their display
 		// in various contexts — like the inserter and auto-complete components.
 		paragraph,
@@ -64,6 +74,7 @@ export const registerCoreBlocks = () => {
 		...embed.common,
 		...embed.others,
 		freeform,
+		halfImageText,
 		html,
 		latestPosts,
 		more,
@@ -78,9 +89,7 @@ export const registerCoreBlocks = () => {
 		textColumns,
 		verse,
 		video,
-	].forEach( ( { name, settings } ) => {
-		registerBlockType( name, settings );
-	} );
+	] );
 
 	setDefaultBlockName( paragraph.name );
 	setUnknownTypeHandlerName( freeform.name );

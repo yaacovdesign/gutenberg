@@ -1,0 +1,11 @@
+// workaround for columns setting the width in all descend inner blocks
+.half-image__content-area.half-image__content-area > .editor-inner-blocks {
+    grid-auto-columns: initial;
+}
+
+.layout-column-2 > .editor-block-list__block {
+	width: 100%;
+}
+.half-image__content-area {
+	margin: 0;
+}
