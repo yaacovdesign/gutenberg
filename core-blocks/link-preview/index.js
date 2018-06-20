@@ -184,7 +184,7 @@ const edit = class extends Component {
 						<div className="wp-block-embed-link-preview__image__tools">
 							{ hasMultipleImages && <IconButton aria-label="Previous image" icon="arrow-left-alt2" onClick={ this.previousImage } /> }
 							<IconButton icon="no" aria-label="Remove image" onClick={ this.removeImage } />
-							{ hasMultipleImages && <IconButton aria-label="Next image" icon="arrow-left-alt2" onClick={ this.nextImage } /> }
+							{ hasMultipleImages && <IconButton aria-label="Next image" icon="arrow-right-alt2" onClick={ this.nextImage } /> }
 						</div>
 						}
 					</div>

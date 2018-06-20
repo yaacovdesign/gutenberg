@@ -89,7 +89,7 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 
 		// Serve data from cache if set.
 		unset( $args['_wpnonce'] );
-		$cache_key = 'opengraph_' . md5( serialize( $args ) );
+		$cache_key = 'gutenberg_opengraph_' . md5( serialize( $args ) );
 		$data      = get_transient( $cache_key );
 		$url       = $request['url'];
 
@@ -168,7 +168,9 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 
 		$mime_type = $response['headers']->offsetGet( 'content-type' );
 		$file      = array(
-			'name'     => basename( $url ),
+			// Get rid of any query parameters, leaving just the file name, so we don't get
+			// security warnings when uploading images that look like 'screenshot.jpg?3'.
+			'name'     => preg_replace( '/\?.*/', '', basename( $url ) ),
 			'type'     => $mime_type,
 			'tmp_name' => $tmp_filename,
 			'error'    => 0,
