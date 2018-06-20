@@ -147,21 +147,28 @@ const edit = class extends Component {
 				<Fragment>
 					<Placeholder label={ label } className="wp-block-embed">
 						<form onSubmit={ this.setURL }>
-							<input
-								type="url"
-								value={ url || '' }
-								className="components-placeholder__input"
-								aria-label={ label }
-								placeholder={ __( 'Enter URL here…' ) }
-								onChange={ ( event ) => this.setState( { url: event.target.value } ) } />
 							{ mode !== FETCH && (
+							<Fragment>
+								<input
+									type="url"
+									value={ url || '' }
+									className="components-placeholder__input"
+									aria-label={ label }
+									placeholder={ __( 'Enter URL here…' ) }
+									onChange={ ( event ) => this.setState( { url: event.target.value } ) } />
 								<Button
 									isLarge
 									type="submit">
 									{ __( 'Preview' ) }
 								</Button>
+							</Fragment>
 							) }
-							{ mode === FETCH && <Spinner /> }
+							{ mode === FETCH && (
+								<div className="wp-block-embed-link-preview is-loading">
+									<Spinner />
+									<p>{ __( 'Generating preview…' ) }</p>
+								</div>
+							) }
 							{ mode === CANT_FETCH && <p className="components-placeholder__error">{ __( 'Sorry, we could not generate a preview for that URL.' ) }</p> }
 						</form>
 					</Placeholder>

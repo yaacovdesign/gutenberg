@@ -160,7 +160,7 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 			return new WP_Error( 'opengraph_image_resize_fail', __( 'Failed to resize the image.', 'gutenberg' ) );
 		}
 
-		$saved = $image->save( $tmp_filename );
+		$saved = $image->save();
 		if ( is_wp_error( $saved ) ) {
 			unlink( $tmp_filename );
 			return new WP_Error( 'opengraph_image_save_fail', __( 'Failed to save the image.', 'gutenberg' ) );
@@ -298,7 +298,7 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 			}
 		} else {
 			$data['images'] = array();
-			foreach( $data['image'] as $imgsrc ) {
+			foreach ( $data['image'] as $imgsrc ) {
 				$local_url = $this->maybe_sideload_remote_image( $imgsrc );
 				if ( ! is_wp_error( $local_url ) ) {
 					$data['images'][] = array( 'src' => $local_url );
