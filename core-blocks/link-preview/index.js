@@ -148,20 +148,20 @@ const edit = class extends Component {
 					<Placeholder label={ label } className="wp-block-embed">
 						<form onSubmit={ this.setURL }>
 							{ mode !== FETCH && (
-							<Fragment>
-								<input
-									type="url"
-									value={ url || '' }
-									className="components-placeholder__input"
-									aria-label={ label }
-									placeholder={ __( 'Enter URL here…' ) }
-									onChange={ ( event ) => this.setState( { url: event.target.value } ) } />
-								<Button
-									isLarge
-									type="submit">
-									{ __( 'Preview' ) }
-								</Button>
-							</Fragment>
+								<Fragment>
+									<input
+										type="url"
+										value={ url || '' }
+										className="components-placeholder__input"
+										aria-label={ label }
+										placeholder={ __( 'Enter URL here…' ) }
+										onChange={ ( event ) => this.setState( { url: event.target.value } ) } />
+									<Button
+										isLarge
+										type="submit">
+										{ __( 'Preview' ) }
+									</Button>
+								</Fragment>
 							) }
 							{ mode === FETCH && (
 								<div className="wp-block-embed-link-preview is-loading">
