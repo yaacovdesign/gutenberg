@@ -176,7 +176,12 @@ function getEmbedBlockSettings( { title, description, icon, category = 'embed', 
 								setAttributes( { type, providerNameSlug } );
 							} else {
 								// No html, no custom type that we support, replace with a link-preview.
-								this.props.onReplace( createBlock( 'core-embed/link-preview', { url } ) );
+								this.props.onReplace(
+									[
+										createBlock( 'core/paragraph', { content: <a href={ url }>{ url }</a> } ),
+										createBlock( 'core-embed/link-preview', { url } ),
+									]
+								);
 							}
 							this.setState( { fetching: false } );
 						},
