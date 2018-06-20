@@ -231,10 +231,14 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 		);
 
 		// Extract any OpenGraph data.
-		$matches = array();
+		$matches = array( 'image' => array() );
 		preg_match_all( '/<meta .*property="og:([a-z]+)" content="([^"]+)"/', $body, $matches );
 		foreach ( $matches[1] as $index => $property ) {
-			$data[ $property ] = $matches[2][ $index ];
+			if ( 'image' === $property ) {
+				$data['image'][] = $matches[2][ $index ];
+			} else {
+				$data[ $property ] = $matches[2][ $index ];
+			}
 		}
 
 		if ( ! isset( $data['title'] ) || empty( $data['title'] ) ) {
@@ -260,7 +264,9 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 		}
 
 		foreach ( $data as $index => $value ) {
-			$data[ $index ] = $this->sanitize_content( $value );
+			if ( 'image' !== $index ) {
+				$data[ $index ] = $this->sanitize_content( $value );
+			}
 		}
 
 		if ( ! isset( $data['image'] ) || empty( $data['image'] ) ) {
@@ -292,9 +298,11 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 			}
 		} else {
 			$data['images'] = array();
-			$local_url      = $this->maybe_sideload_remote_image( $data['image'] );
-			if ( ! is_wp_error( $local_url ) ) {
-				$data['images'][] = array( 'src' => $local_url );
+			foreach( $data['image'] as $imgsrc ) {
+				$local_url = $this->maybe_sideload_remote_image( $imgsrc );
+				if ( ! is_wp_error( $local_url ) ) {
+					$data['images'][] = array( 'src' => $local_url );
+				}
 			}
 			unset( $data['image'] );
 		}
