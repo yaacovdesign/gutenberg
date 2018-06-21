@@ -161,8 +161,8 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 		}
 
 		$saved = $image->save();
+		unlink( $tmp_filename );
 		if ( is_wp_error( $saved ) ) {
-			unlink( $tmp_filename );
 			return new WP_Error( 'opengraph_image_save_fail', __( 'Failed to save the image.', 'gutenberg' ) );
 		}
 
@@ -172,14 +172,13 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 			// security warnings when uploading images that look like 'screenshot.jpg?3'.
 			'name'     => preg_replace( '/\?.*/', '', basename( $url ) ),
 			'type'     => $mime_type,
-			'tmp_name' => $tmp_filename,
+			'tmp_name' => $saved['path'],
 			'error'    => 0,
-			'size'     => filesize( $tmp_filename ),
+			'size'     => filesize( $saved['path'] ),
 		);
 
 		$attachment_id = media_handle_sideload( $file, 0 );
 		if ( is_wp_error( $attachment_id ) ) {
-			unlink( $tmp_filename );
 			return $attachment_id;
 		}
 
