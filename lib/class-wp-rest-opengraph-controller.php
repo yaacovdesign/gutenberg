@@ -94,7 +94,7 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 		$url       = $request['url'];
 
 		if ( ! empty( $data ) ) {
-			//return $data;
+			return $data;
 		}
 
 		$data = $this->generate_preview( $args );
