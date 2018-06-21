@@ -94,7 +94,7 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 		$url       = $request['url'];
 
 		if ( ! empty( $data ) ) {
-			return $data;
+			//return $data;
 		}
 
 		$data = $this->generate_preview( $args );
@@ -228,6 +228,12 @@ class WP_REST_OpenGraph_Controller extends WP_REST_Controller {
 		$data = array(
 			'url' => $url,
 		);
+
+		// Extract any data from meta tags.
+		preg_match_all( '/<meta .*(name|property)="([a-z]+)" content="([^"]+)"/', $body, $matches );
+		foreach ( $matches[2] as $index => $property ) {
+			$data[ $property ] = $matches[3][ $index ];
+		}
 
 		// Extract any OpenGraph data.
 		$matches = array( 'image' => array() );
