@@ -63,7 +63,7 @@ describe( 'withFocusOutside', () => {
 		expect( callback ).not.toHaveBeenCalled();
 	} );
 
-	it( 'should call handler if focus doesn\'t shift to element within component', () => {
+	it( "should call handler if focus doesn't shift to element within component", () => {
 		const callback = jest.fn();
 		const wrapper = mount( <EnhancedComponent onFocusOutside={ callback } /> );
 

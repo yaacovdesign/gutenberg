@@ -394,7 +394,7 @@ describe( 'selectors', () => {
 	} );
 
 	describe( 'getEditedPostAttribute', () => {
-		it( 'should return the current post\'s slug if no edits have been made', () => {
+		it( "should return the current post's slug if no edits have been made", () => {
 			const state = {
 				currentPost: { slug: 'post slug' },
 				editor: {
@@ -3762,7 +3762,7 @@ describe( 'selectors', () => {
 			} );
 		} );
 
-		it( 'should return undefined if settings for the block don\'t exist', () => {
+		it( "should return undefined if settings for the block don't exist", () => {
 			const state = {
 				blockListSettings: {},
 			};

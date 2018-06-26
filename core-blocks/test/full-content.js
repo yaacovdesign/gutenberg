@@ -139,7 +139,7 @@ describe( 'full post content fixture', () => {
 				).toEqual( parserOutputExpected );
 			} catch ( err ) {
 				throw new Error( format(
-					'File \'%s.parsed.json\' does not match expected value:\n\n%s',
+					"File '%s.parsed.json' does not match expected value:\n\n%s",
 					f,
 					err.message
 				) );
@@ -181,7 +181,7 @@ describe( 'full post content fixture', () => {
 				).toEqual( blocksExpected );
 			} catch ( err ) {
 				throw new Error( format(
-					'File \'%s.json\' does not match expected value:\n\n%s',
+					"File '%s.json' does not match expected value:\n\n%s",
 					f,
 					err.message
 				) );
@@ -207,7 +207,7 @@ describe( 'full post content fixture', () => {
 				expect( serializedActual ).toEqual( serializedExpected );
 			} catch ( err ) {
 				throw new Error( format(
-					'File \'%s.serialized.html\' does not match expected value:\n\n%s',
+					"File '%s.serialized.html' does not match expected value:\n\n%s",
 					f,
 					err.message
 				) );
@@ -246,7 +246,7 @@ describe( 'full post content fixture', () => {
 
 			if ( ! foundFixtures.length ) {
 				errors.push( format(
-					'Expected a fixture file called \'%s.html\' or \'%s__*.html\'.',
+					"Expected a fixture file called '%s.html' or '%s__*.html'.",
 					nameToFilename,
 					nameToFilename
 				) );
@@ -255,7 +255,7 @@ describe( 'full post content fixture', () => {
 			foundFixtures.forEach( ( fixture ) => {
 				if ( name !== fixture.firstBlock ) {
 					errors.push( format(
-						'Expected fixture file \'%s\' to test the \'%s\' block.',
+						"Expected fixture file '%s' to test the '%s' block.",
 						fixture.filename,
 						name
 					) );

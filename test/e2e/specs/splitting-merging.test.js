@@ -23,7 +23,7 @@ describe( 'splitting and merging blocks', () => {
 
 		//Switch to Code Editor to check HTML output
 		await page.click( '.edit-post-more-menu [aria-label="More"]' );
-		let codeEditorButton = ( await page.$x( '//button[contains(text(), \'Code Editor\')]' ) )[ 0 ];
+		let codeEditorButton = ( await page.$x( "//button[contains(text(), 'Code Editor')]" ) )[ 0 ];
 		await codeEditorButton.click( 'button' );
 
 		//Assert that there are now two paragraph blocks with correct content
@@ -32,7 +32,7 @@ describe( 'splitting and merging blocks', () => {
 
 		//Switch to Visual Editor to continue testing
 		await page.click( '.edit-post-more-menu [aria-label="More"]' );
-		const visualEditorButton = ( await page.$x( '//button[contains(text(), \'Visual Editor\')]' ) )[ 0 ];
+		const visualEditorButton = ( await page.$x( "//button[contains(text(), 'Visual Editor')]" ) )[ 0 ];
 		await visualEditorButton.click( 'button' );
 
 		//Press Backspace to merge paragraph blocks
@@ -42,7 +42,7 @@ describe( 'splitting and merging blocks', () => {
 
 		//Switch to Code Editor to check HTML output
 		await page.click( '.edit-post-more-menu [aria-label="More"]' );
-		codeEditorButton = ( await page.$x( '//button[contains(text(), \'Code Editor\')]' ) )[ 0 ];
+		codeEditorButton = ( await page.$x( "//button[contains(text(), 'Code Editor')]" ) )[ 0 ];
 		await codeEditorButton.click( 'button' );
 
 		//Assert that there is now one paragraph with correct content

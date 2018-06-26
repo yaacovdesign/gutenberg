@@ -300,7 +300,7 @@ describe( 'block serializer', () => {
 	} );
 
 	describe( 'getBlockContent', () => {
-		it( 'should return the block\'s serialized inner HTML', () => {
+		it( "should return the block's serialized inner HTML", () => {
 			const blockType = {
 				attributes: {
 					content: {

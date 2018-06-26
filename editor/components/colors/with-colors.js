@@ -37,7 +37,7 @@ export default ( ...args ) => {
 	if ( isFunction( args[ 0 ] ) ) {
 		deprecated( 'Using withColors( mapGetSetColorToProps ) ', {
 			version: '3.3',
-			alternative: 'withColors( colorAttributeName, { secondColorAttributeName: \'color-context\' }, ... )',
+			alternative: "withColors( colorAttributeName, { secondColorAttributeName: 'color-context' }, ... )",
 		} );
 		return withColorsDeprecated( args[ 0 ] );
 	}

@@ -38,15 +38,15 @@ describe( 'UrlInputButton', () => {
 		const onChangeMock = jest.fn();
 		const wrapper = shallow( <UrlInputButton onChange={ onChangeMock } /> );
 		clickEditLink( wrapper );
-		wrapper.find( '[data-test=\'UrlInput\']' ).simulate( 'change' );
+		wrapper.find( "[data-test='UrlInput']" ).simulate( 'change' );
 		expect( onChangeMock ).toHaveBeenCalledTimes( 1 );
 	} );
 	it( 'should call onChange function twice when value changes twice', () => {
 		const onChangeMock = jest.fn();
 		const wrapper = shallow( <UrlInputButton onChange={ onChangeMock } /> );
 		clickEditLink( wrapper );
-		wrapper.find( '[data-test=\'UrlInput\']' ).simulate( 'change' );
-		wrapper.find( '[data-test=\'UrlInput\']' ).simulate( 'change' );
+		wrapper.find( "[data-test='UrlInput']" ).simulate( 'change' );
+		wrapper.find( "[data-test='UrlInput']" ).simulate( 'change' );
 		expect( onChangeMock ).toHaveBeenCalledTimes( 2 );
 	} );
 	it( 'should close the form when user clicks Close button', () => {

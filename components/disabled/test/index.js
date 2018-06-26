@@ -112,14 +112,14 @@ describe( 'Disabled', () => {
 
 		// Skipped temporarily until Enzyme publishes new version that works with React 16.3.0 APIs.
 		// eslint-disable-next-line jest/no-disabled-tests
-		test.skip( 'lets components know that they\'re disabled via context', () => {
+		test.skip( "lets components know that they're disabled via context", () => {
 			const wrapper = mount( <Disabled><DisabledStatus /></Disabled> );
 			expect( wrapper.text() ).toBe( 'Disabled' );
 		} );
 
 		// Skipped temporarily until Enzyme publishes new version that works with React 16.3.0 APIs.
 		// eslint-disable-next-line jest/no-disabled-tests
-		test.skip( 'lets components know that they\'re not disabled via context', () => {
+		test.skip( "lets components know that they're not disabled via context", () => {
 			const wrapper = mount( <DisabledStatus /> );
 			expect( wrapper.text() ).toBe( 'Not disabled' );
 		} );
