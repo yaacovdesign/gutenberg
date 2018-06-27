@@ -148,7 +148,7 @@ const entryPointNames = [
 ];
 
 const gutenbergPackages = [
-	'api-request',
+	'fetch',
 	'blob',
 	'core-data',
 	'data',
@@ -298,7 +298,7 @@ const config = {
 				return path;
 			},
 		} ),
-		new LibraryExportDefaultPlugin( [ 'deprecated', 'dom-ready', 'api-request' ].map( camelCaseDash ) ),
+		new LibraryExportDefaultPlugin( [ 'deprecated', 'dom-ready', 'fetch' ].map( camelCaseDash ) ),
 	],
 	stats: {
 		children: false,

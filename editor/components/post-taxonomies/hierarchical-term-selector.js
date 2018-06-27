@@ -12,7 +12,7 @@ import { Component, compose } from '@wordpress/element';
 import { TreeSelect, withAPIData, withInstanceId, withSpokenMessages, Button } from '@wordpress/components';
 import { buildTermsTree } from '@wordpress/utils';
 import { withSelect, withDispatch } from '@wordpress/data';
-import apiRequest from '@wordpress/api-request';
+import fetch from '@wordpress/fetch';
 
 /**
  * Module Constants
@@ -104,7 +104,7 @@ class HierarchicalTermSelector extends Component {
 			} );
 			// Tries to create a term or fetch it if it already exists
 			const basePath = wp.api.getTaxonomyRoute( this.props.slug );
-			this.addRequest = apiRequest( {
+			this.addRequest = fetch( {
 				path: `/wp/v2/${ basePath }`,
 				method: 'POST',
 				data: {
@@ -117,7 +117,7 @@ class HierarchicalTermSelector extends Component {
 					const errorCode = xhr.responseJSON && xhr.responseJSON.code;
 					if ( errorCode === 'term_exists' ) {
 						// search the new category created since last fetch
-						this.addRequest = apiRequest( {
+						this.addRequest = fetch( {
 							path: `/wp/v2/${ basePath }?${ stringify( { ...DEFAULT_QUERY, parent: formParent || 0, search: formName } ) }`,
 						} );
 						return this.addRequest.then( ( searchResult ) => {
@@ -162,7 +162,7 @@ class HierarchicalTermSelector extends Component {
 
 	componentDidMount() {
 		const basePath = wp.api.getTaxonomyRoute( this.props.slug );
-		this.fetchRequest = apiRequest( { path: `/wp/v2/${ basePath }?${ stringify( DEFAULT_QUERY ) }` } );
+		this.fetchRequest = fetch( { path: `/wp/v2/${ basePath }?${ stringify( DEFAULT_QUERY ) }` } );
 		this.fetchRequest.then(
 			( terms ) => { // resolve
 				const availableTermsTree = buildTermsTree( terms );
