@@ -259,7 +259,6 @@ function gutenberg_register_scripts_and_styles() {
 			'wp-i18n',
 			'wp-is-shallow-equal',
 			'wp-keycodes',
-			'wp-utils',
 		),
 		filemtime( gutenberg_dir_path() . 'build/components/index.js' ),
 		true
