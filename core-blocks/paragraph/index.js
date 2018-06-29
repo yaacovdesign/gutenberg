@@ -75,6 +75,19 @@ const FONT_SIZES = [
 	},
 ];
 
+const toolbar = ( props ) => {
+	const { attributes, setAttributes } = props;
+	const { align } = attributes;
+	return (
+		<AlignmentToolbar
+			value={ align }
+			onChange={ ( nextAlign ) => {
+				setAttributes( { align: nextAlign } );
+			} }
+		/>
+	);
+};
+
 class ParagraphBlock extends Component {
 	constructor() {
 		super( ...arguments );
@@ -166,12 +179,7 @@ class ParagraphBlock extends Component {
 		return (
 			<Fragment>
 				<BlockControls>
-					<AlignmentToolbar
-						value={ align }
-						onChange={ ( nextAlign ) => {
-							setAttributes( { align: nextAlign } );
-						} }
-					/>
+					{ toolbar( this.props, this.state ) }
 				</BlockControls>
 				<InspectorControls>
 					<PanelBody title={ __( 'Text Settings' ) } className="blocks-font-size">
@@ -313,6 +321,8 @@ export const settings = {
 	supports,
 
 	attributes: schema,
+
+	toolbar,
 
 	transforms: {
 		from: [

@@ -1,25 +1,66 @@
 /**
  * External dependencies
  */
-import { first, last } from 'lodash';
+import { first, last, uniq } from 'lodash';
 
 /**
  * WordPress dependencies
  */
-import { withSelect } from '@wordpress/data';
+import { withSelect, withDispatch } from '@wordpress/data';
+import { getBlockType } from '@wordpress/blocks';
+import { compose } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import BlockMover from '../block-mover';
 import BlockSettingsMenu from '../block-settings-menu';
+import MultiBlocksSwitcher from '../block-switcher/multi-blocks-switcher';
 
-function BlockListMultiControls( { multiSelectedBlockUids, rootUID, isSelecting, isFirst, isLast } ) {
+function reduceAttributes( multiSelectedBlocks ) {
+	const attributes = {};
+	// Reduce the selected block's attributes, so if they all have the
+	// same value for an attribute, we get it in the multi toolbar attributes.
+	for ( let i = 0; i < multiSelectedBlocks.length; i++ ) {
+		const block = multiSelectedBlocks[ i ];
+		for ( const attr in block.attributes ) {
+			if ( block.attributes[ attr ] === attributes[ attr ] || 0 === i ) {
+				attributes[ attr ] = block.attributes[ attr ];
+			} else {
+				attributes[ attr ] = undefined;
+			}
+		}
+	}
+	return attributes;
+}
+
+function BlockListMultiControls( { multiSelectedBlockUids, multiSelectedBlocks, rootUID, isSelecting, isFirst, isLast, onChange } ) {
 	if ( isSelecting ) {
 		return null;
 	}
 
+	const names = uniq( multiSelectedBlocks.map( ( { name } ) => name ) );
+	let toolbar;
+
+	if ( 1 === names.length ) {
+		const getToolbar = getBlockType( names[ 0 ] ).toolbar;
+		if ( undefined !== getToolbar ) {
+			const props = {
+				attributes: reduceAttributes( multiSelectedBlocks ),
+				setAttributes: ( newAttibutes ) => {
+					for ( let i = 0; i < multiSelectedBlocks.length; i++ ) {
+						const uid = multiSelectedBlocks[ i ].uid;
+						onChange( uid, newAttibutes );
+					}
+				},
+			};
+			toolbar = getToolbar( props, {} );
+		}
+	}
+
 	return [
+		<MultiBlocksSwitcher key="switcher" />,
+		toolbar,
 		<BlockMover
 			key="mover"
 			rootUID={ rootUID }
@@ -36,9 +77,22 @@ function BlockListMultiControls( { multiSelectedBlockUids, rootUID, isSelecting,
 	];
 }
 
-export default withSelect( ( select, { rootUID } ) => {
+const applyWithDispatch = withDispatch( ( dispatch ) => {
+	const {
+		updateBlockAttributes,
+	} = dispatch( 'core/editor' );
+
+	return {
+		onChange( uid, attributes ) {
+			updateBlockAttributes( uid, attributes );
+		},
+	};
+} );
+
+const applyWithSelect = withSelect( ( select, { rootUID } ) => {
 	const {
 		getMultiSelectedBlockUids,
+		getMultiSelectedBlocks,
 		isMultiSelecting,
 		getBlockIndex,
 		getBlockCount,
@@ -49,8 +103,14 @@ export default withSelect( ( select, { rootUID } ) => {
 
 	return {
 		multiSelectedBlockUids: uids,
+		multiSelectedBlocks: getMultiSelectedBlocks(),
 		isSelecting: isMultiSelecting(),
 		isFirst: firstIndex === 0,
 		isLast: lastIndex + 1 === getBlockCount(),
 	};
-} )( BlockListMultiControls );
+} );
+
+export default compose(
+	applyWithSelect,
+	applyWithDispatch,
+)( BlockListMultiControls );
