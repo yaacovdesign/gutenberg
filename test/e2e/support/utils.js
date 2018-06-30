@@ -144,6 +144,12 @@ export async function switchToEditor( mode ) {
 	await button.click( 'button' );
 }
 
+/**
+ * Switches to Code editor and retrieves the editor HTML, returning a promise
+ * resolving with the HTML string.
+ *
+ * @return {Promise} Promise resolving with editor HTML string.
+ */
 export async function getHTMLFromCodeEditor() {
 	await switchToEditor( 'Code' );
 	const textEditorContent = await page.$eval( '.editor-post-text-editor', ( element ) => element.value );
