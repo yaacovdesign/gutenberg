@@ -17,7 +17,7 @@ import {
 	placeCaretAtVerticalEdge,
 	isEntirelySelected,
 } from '@wordpress/dom';
-import { keycodes } from '@wordpress/utils';
+import { UP, DOWN, LEFT, RIGHT, isKeyboardEvent } from '@wordpress/keycodes';
 import { withSelect, withDispatch } from '@wordpress/data';
 
 /**
@@ -27,13 +27,8 @@ import './style.scss';
 import {
 	isBlockFocusStop,
 	isInSameBlock,
+	hasInnerBlocksContext,
 } from '../../utils/dom';
-
-/**
- * Module Constants
- */
-
-const { UP, DOWN, LEFT, RIGHT, isKeyboardEvent } = keycodes;
 
 /**
  * Given an element, returns true if the element is a tabbable text field, or
@@ -105,9 +100,20 @@ class WritingFlow extends Component {
 				return false;
 			}
 
-			// Prefer text fields, but settle for block focus stop.
-			if ( ! isTextField( node ) && ! isBlockFocusStop( node ) ) {
+			// Prefer text fields...
+			if ( isTextField( node ) ) {
+				return true;
+			}
+
+			// ...but settle for block focus stop.
+			if ( ! isBlockFocusStop( node ) ) {
 				return false;
+			}
+
+			// If element contains inner blocks, stop immediately at its focus
+			// wrapper.
+			if ( hasInnerBlocksContext( node ) ) {
+				return true;
 			}
 
 			// If navigating out of a block (in reverse), don't consider its
@@ -181,6 +187,12 @@ class WritingFlow extends Component {
 
 	onKeyDown( event ) {
 		const { hasMultiSelection, onMultiSelect, blocks } = this.props;
+
+		// Aobrt if navigation has already been handled (e.g. TinyMCE inline
+		// boundaries).
+		if ( event.nativeEvent.defaultPrevented ) {
+			return;
+		}
 
 		const { keyCode, target } = event;
 		const isUp = keyCode === UP;

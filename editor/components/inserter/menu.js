@@ -3,35 +3,43 @@
  */
 import {
 	filter,
+	find,
+	findIndex,
+	flow,
 	groupBy,
+	isEmpty,
 	map,
 	some,
-	flow,
 	sortBy,
-	findIndex,
-	find,
 	without,
+	includes,
 } from 'lodash';
+import scrollIntoView from 'dom-scroll-into-view';
 
 /**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Component, compose } from '@wordpress/element';
+import { Component, compose, findDOMNode, createRef } from '@wordpress/element';
 import {
 	withInstanceId,
 	withSpokenMessages,
 	PanelBody,
+	withSafeTimeout,
 } from '@wordpress/components';
 import { getCategories, isSharedBlock } from '@wordpress/blocks';
-import { withSelect, withDispatch } from '@wordpress/data';
+import { withDispatch, withSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import './style.scss';
 import BlockPreview from '../block-preview';
-import ItemList from './item-list';
+import BlockTypesList from '../block-types-list';
+import ChildBlocks from './child-blocks';
+import InserterResultsPortal from './results-portal';
+
+const MAX_SUGGESTED_ITEMS = 9;
 
 /**
  * Filters an item list given a search term.
@@ -54,14 +62,18 @@ export class InserterMenu extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
+			childItems: [],
 			filterValue: '',
 			hoveredItem: null,
+			suggestedItems: [],
 			sharedItems: [],
 			itemsPerCategory: {},
-			openPanels: [ 'frecent' ],
+			openPanels: [ 'suggested' ],
 		};
 		this.onChangeSearchInput = this.onChangeSearchInput.bind( this );
 		this.onHover = this.onHover.bind( this );
+		this.panels = {};
+		this.inserterResults = createRef();
 	}
 
 	componentDidMount() {
@@ -84,6 +96,18 @@ export class InserterMenu extends Component {
 		this.setState( {
 			hoveredItem: item,
 		} );
+
+		if ( item ) {
+			this.props.showInsertionPoint();
+		} else {
+			this.props.hideInsertionPoint();
+		}
+	}
+
+	bindPanel( name ) {
+		return ( ref ) => {
+			this.panels[ name ] = ref;
+		};
 	}
 
 	onTogglePanel( panel ) {
@@ -100,14 +124,32 @@ export class InserterMenu extends Component {
 						panel,
 					],
 				} );
+
+				this.props.setTimeout( () => {
+					// We need a generic way to access the panel's container
+					// eslint-disable-next-line react/no-find-dom-node
+					scrollIntoView( findDOMNode( this.panels[ panel ] ), this.inserterResults.current, {
+						alignWithTop: true,
+					} );
+				} );
 			}
 		};
 	}
 
 	filter( filterValue = '' ) {
-		const { items } = this.props;
+		const { items, rootChildBlocks } = this.props;
 		const filteredItems = searchItems( items, filterValue );
+
+		const childItems = filter( filteredItems, ( { name } ) => includes( rootChildBlocks, name ) );
+
+		let suggestedItems = [];
+		if ( ! filterValue ) {
+			const maxSuggestedItems = this.props.maxSuggestedItems || MAX_SUGGESTED_ITEMS;
+			suggestedItems = filter( items, ( item ) => item.utility > 0 ).slice( 0, maxSuggestedItems );
+		}
+
 		const sharedItems = filter( filteredItems, { category: 'shared' } );
+
 		const getCategoryIndex = ( item ) => {
 			return findIndex( getCategories(), ( category ) => category.slug === item.category );
 		};
@@ -116,10 +158,11 @@ export class InserterMenu extends Component {
 			( itemList ) => sortBy( itemList, getCategoryIndex ),
 			( itemList ) => groupBy( itemList, 'category' )
 		)( filteredItems );
+
 		let openPanels = this.state.openPanels;
 		if ( filterValue !== this.state.filterValue ) {
 			if ( ! filterValue ) {
-				openPanels = [ 'frecent' ];
+				openPanels = [ 'suggested' ];
 			} else if ( sharedItems.length ) {
 				openPanels = [ 'shared' ];
 			} else if ( filteredItems.length ) {
@@ -130,7 +173,9 @@ export class InserterMenu extends Component {
 
 		this.setState( {
 			hoveredItem: null,
+			childItems,
 			filterValue,
+			suggestedItems,
 			sharedItems,
 			itemsPerCategory,
 			openPanels,
@@ -138,10 +183,10 @@ export class InserterMenu extends Component {
 	}
 
 	render() {
-		const { instanceId, frecentItems, onSelect } = this.props;
-		const { hoveredItem, filterValue, sharedItems, itemsPerCategory, openPanels } = this.state;
-		const isSearching = !! filterValue;
+		const { instanceId, onSelect, rootUID } = this.props;
+		const { childItems, filterValue, hoveredItem, suggestedItems, sharedItems, itemsPerCategory, openPanels } = this.state;
 		const isPanelOpen = ( panel ) => openPanels.indexOf( panel ) !== -1;
+		const isSearching = !! filterValue;
 
 		// Disable reason: The inserter menu is a modal display, not one which
 		// is always visible, and one which already incurs this behavior of
@@ -162,27 +207,32 @@ export class InserterMenu extends Component {
 					onChange={ this.onChangeSearchInput }
 				/>
 
-				<div className="editor-inserter__results">
-					{ ! isSearching &&
+				<div
+					className="editor-inserter__results"
+					ref={ this.inserterResults }
+					tabIndex="0"
+					role="region"
+					aria-label={ __( 'Available block types' ) }
+				>
+					<InserterResultsPortal.Slot fillProps={ { filterValue } } />
+
+					<ChildBlocks
+						rootUID={ rootUID }
+						items={ childItems }
+						onSelect={ onSelect }
+						onHover={ this.onHover }
+					/>
+
+					{ !! suggestedItems.length &&
 						<PanelBody
 							title={ __( 'Most Used' ) }
-							opened={ isPanelOpen( 'frecent' ) }
-							onToggle={ this.onTogglePanel( 'frecent' ) }
+							opened={ isPanelOpen( 'suggested' ) }
+							onToggle={ this.onTogglePanel( 'suggested' ) }
+							ref={ this.bindPanel( 'suggested' ) }
 						>
-							<ItemList items={ frecentItems } onSelect={ onSelect } onHover={ this.onHover } />
+							<BlockTypesList items={ suggestedItems } onSelect={ onSelect } onHover={ this.onHover } />
 						</PanelBody>
 					}
-
-					{ !! sharedItems.length && (
-						<PanelBody
-							title={ __( 'Shared' ) }
-							opened={ isPanelOpen( 'shared' ) }
-							onToggle={ this.onTogglePanel( 'shared' ) }
-						>
-							<ItemList items={ sharedItems } onSelect={ onSelect } onHover={ this.onHover } />
-						</PanelBody>
-					) }
-
 					{ map( getCategories(), ( category ) => {
 						const categoryItems = itemsPerCategory[ category.slug ];
 						if ( ! categoryItems || ! categoryItems.length ) {
@@ -192,18 +242,33 @@ export class InserterMenu extends Component {
 							<PanelBody
 								key={ category.slug }
 								title={ category.title }
-								opened={ isPanelOpen( category.slug ) }
+								opened={ isSearching || isPanelOpen( category.slug ) }
 								onToggle={ this.onTogglePanel( category.slug ) }
+								ref={ this.bindPanel( category.slug ) }
 							>
-								<ItemList items={ categoryItems } onSelect={ onSelect } onHover={ this.onHover } />
+								<BlockTypesList items={ categoryItems } onSelect={ onSelect } onHover={ this.onHover } />
 							</PanelBody>
 						);
 					} ) }
-
-					{ hoveredItem && isSharedBlock( hoveredItem ) &&
-						<BlockPreview name={ hoveredItem.name } attributes={ hoveredItem.initialAttributes } />
-					}
+					{ !! sharedItems.length && (
+						<PanelBody
+							title={ __( 'Shared' ) }
+							opened={ isPanelOpen( 'shared' ) }
+							onToggle={ this.onTogglePanel( 'shared' ) }
+							icon="controls-repeat"
+							ref={ this.bindPanel( 'shared' ) }
+						>
+							<BlockTypesList items={ sharedItems } onSelect={ onSelect } onHover={ this.onHover } />
+						</PanelBody>
+					) }
+					{ isEmpty( suggestedItems ) && isEmpty( sharedItems ) && isEmpty( itemsPerCategory ) && (
+						<p className="editor-inserter__no-results">{ __( 'No blocks found.' ) }</p>
+					) }
 				</div>
+
+				{ hoveredItem && isSharedBlock( hoveredItem ) &&
+					<BlockPreview name={ hoveredItem.name } attributes={ hoveredItem.initialAttributes } />
+				}
 			</div>
 		);
 		/* eslint-enable jsx-a11y/no-autofocus */
@@ -211,25 +276,24 @@ export class InserterMenu extends Component {
 }
 
 export default compose(
-	withSelect( ( select ) => {
+	withSelect( ( select, { rootUID } ) => {
 		const {
-			getBlockInsertionPoint,
-			getInserterItems,
-			getFrecentInserterItems,
-			getSupportedBlocks,
-			getEditorSettings,
+			getChildBlockNames,
+		} = select( 'core/blocks' );
+		const {
+			getBlockName,
 		} = select( 'core/editor' );
-		const { allowedBlockTypes } = getEditorSettings();
-		const { rootUID } = getBlockInsertionPoint();
-		const supportedBlocks = getSupportedBlocks( rootUID, allowedBlockTypes );
+		const rootBlockName = getBlockName( rootUID );
 		return {
-			items: getInserterItems( supportedBlocks ),
-			frecentItems: getFrecentInserterItems( supportedBlocks ),
+			rootChildBlocks: getChildBlockNames( rootBlockName ),
 		};
 	} ),
 	withDispatch( ( dispatch ) => ( {
 		fetchSharedBlocks: dispatch( 'core/editor' ).fetchSharedBlocks,
+		showInsertionPoint: dispatch( 'core/editor' ).showInsertionPoint,
+		hideInsertionPoint: dispatch( 'core/editor' ).hideInsertionPoint,
 	} ) ),
 	withSpokenMessages,
-	withInstanceId
+	withInstanceId,
+	withSafeTimeout
 )( InserterMenu );

@@ -7,6 +7,7 @@
 		font-family: $editor-font;
 		font-size: $editor-font-size;
 		line-height: $editor-line-height;
+		color: $dark-gray-700;
 	}
 
 	& ul,
@@ -45,13 +46,13 @@
 
 	@include break-small() {
 		.editor-block-list__block-edit {
-			margin-left: -$block-side-ui-padding;
-			margin-right: -$block-side-ui-padding;
+			margin-left: -$block-side-ui-width;
+			margin-right: -$block-side-ui-width;
 		}
 
 		&[data-align="full"] > .editor-block-contextual-toolbar,
-		&[data-align="wide"] > .editor-block-contextual-toolbar { // don't affect nested block toolbars
-			max-width: $content-width + 2;	// 1px border left and right
+		&[data-align="wide"] > .editor-block-contextual-toolbar { // Don't affect nested block toolbars.
+			max-width: $content-width + $parent-block-padding; // Add 1px border left and right.
 			margin-left: auto;
 			margin-right: auto;
 		}
@@ -67,33 +68,30 @@
 }
 
 // The base width of the title should match that of blocks even if it isn't a block
-.edit-post-visual-editor .editor-post-title {
+.editor-post-title {
+	@include break-small() {
+		padding-left: $block-container-side-padding;
+		padding-right: $block-container-side-padding;
+	}
+}
+.edit-post-visual-editor .editor-post-title__block {
 	margin-left: auto;
 	margin-right: auto;
 	max-width: $content-width;
 
+	// Stack borders.
+	> div {
+		margin-left: 0;
+		margin-right: 0;
+	}
+
+	// Include space for side UI on desktops.
 	@include break-small() {
 		> div {
-			margin-left: -$block-side-ui-padding;
-			margin-right: -$block-side-ui-padding;
+			margin-left: -$block-side-ui-width;
+			margin-right: -$block-side-ui-width;
 		}
 	}
-
-
-	/*.editor-post-permalink {
-		left: $block-padding;
-		right: $block-padding;
-		color: $dark-gray-900;
-	}
-
-	@include break-small() {
-		padding: 5px #{ $block-side-ui-padding - 1px };	// subtract 1px border, because this is an outline
-
-		.editor-post-permalink {
-			left: $block-side-ui-padding;
-			right: $block-side-ui-padding;
-		}
-	}*/
 }
 
 // This is a focus style shown for blocks that need an indicator even when in an isEditing state

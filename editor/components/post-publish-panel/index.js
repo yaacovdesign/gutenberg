@@ -29,17 +29,19 @@ class PostPublishPanel extends Component {
 		};
 	}
 
-	componentWillReceiveProps( newProps ) {
+	static getDerivedStateFromProps( props, state ) {
 		if (
-			! this.state.submitted &&
-			! newProps.isSaving &&
-			( newProps.isPublished || newProps.isScheduled )
+			state.submitted ||
+			props.isSaving ||
+			( ! props.isPublished && ! props.isScheduled )
 		) {
-			this.setState( {
-				submitted: true,
-				loading: false,
-			} );
+			return null;
 		}
+
+		return {
+			submitted: true,
+			loading: false,
+		};
 	}
 
 	componentDidUpdate( prevProps ) {
@@ -60,7 +62,7 @@ class PostPublishPanel extends Component {
 	}
 
 	render() {
-		const { isScheduled, onClose, forceIsDirty, forceIsSaving, renderPrePublishExtension, renderPostPublishExtension } = this.props;
+		const { isScheduled, onClose, forceIsDirty, forceIsSaving, PrePublishExtension, PostPublishExtension } = this.props;
 		const { loading, submitted } = this.state;
 		return (
 			<div className="editor-post-publish-panel">
@@ -84,13 +86,13 @@ class PostPublishPanel extends Component {
 				<div className="editor-post-publish-panel__content">
 					{ ! loading && ! submitted && (
 						<PostPublishPanelPrepublish>
-							{ renderPrePublishExtension() }
+							{ PrePublishExtension && <PrePublishExtension /> }
 						</PostPublishPanelPrepublish>
 					) }
 					{ loading && ! submitted && <Spinner /> }
 					{ submitted && (
 						<PostPublishPanelPostpublish>
-							{ renderPostPublishExtension() }
+							{ PostPublishExtension && <PostPublishExtension /> }
 						</PostPublishPanelPostpublish>
 					) }
 				</div>
