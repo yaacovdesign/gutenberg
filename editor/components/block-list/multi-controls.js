@@ -40,27 +40,24 @@ function BlockListMultiControls( { multiSelectedBlockUids, multiSelectedBlocks, 
 	}
 
 	const names = uniq( multiSelectedBlocks.map( ( { name } ) => name ) );
-	let toolbar;
+	let controls;
 
 	if ( 1 === names.length ) {
-		const getToolbar = getBlockType( names[ 0 ] ).toolbar;
-		if ( undefined !== getToolbar ) {
-			const props = {
-				attributes: reduceAttributes( multiSelectedBlocks ),
-				setAttributes: ( newAttibutes ) => {
-					for ( let i = 0; i < multiSelectedBlocks.length; i++ ) {
-						const uid = multiSelectedBlocks[ i ].uid;
-						onChange( uid, newAttibutes );
-					}
-				},
-			};
-			toolbar = getToolbar( props, {} );
+		const getControls = getBlockType( names[ 0 ] ).controls;
+		const setAttributes = ( newAttibutes ) => {
+			for ( let i = 0; i < multiSelectedBlocks.length; i++ ) {
+				const uid = multiSelectedBlocks[ i ].uid;
+				onChange( uid, newAttibutes );
+			}
+		};
+		if ( undefined !== getControls ) {
+			controls = getControls( reduceAttributes( multiSelectedBlocks ), setAttributes );
 		}
 	}
 
 	return [
 		<MultiBlocksSwitcher key="switcher" />,
-		toolbar,
+		controls,
 		<BlockMover
 			key="mover"
 			rootUID={ rootUID }

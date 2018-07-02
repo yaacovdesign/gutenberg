@@ -7,10 +7,16 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 import { withFilters } from '@wordpress/components';
+import { Fragment } from '@wordpress/element';
 import { getBlockDefaultClassName, hasBlockSupport, getBlockType } from '@wordpress/blocks';
 
+/**
+ * Internal dependencies
+ */
+import BlockControls from '../block-controls';
+
 export const Edit = ( props ) => {
-	const { attributes = {}, name } = props;
+	const { attributes = {}, name, setAttributes } = props;
 	const blockType = getBlockType( name );
 
 	if ( ! blockType ) {
@@ -28,11 +34,26 @@ export const Edit = ( props ) => {
 	// them preferentially as the render value for the block.
 	const Component = blockType.edit || blockType.save;
 
+	// The block can define a function that returns controls for the block toolbar,
+	// which are reusable for multi-block selection.
+	const getControls = blockType.controls;
+	let controls;
+
+	if ( undefined !== getControls ) {
+		controls = getControls( attributes, setAttributes );
+	}
+
 	return (
-		<Component
-			{ ...props }
-			className={ className }
-		/>
+		<Fragment>
+			<Component
+				{ ...props }
+				className={ className }
+			/>
+			{ controls &&
+				<BlockControls>
+					{ controls }
+				</BlockControls> }
+		</Fragment>
 	);
 };
 

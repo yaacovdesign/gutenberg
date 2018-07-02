@@ -25,7 +25,6 @@ import {
 	getColorClass,
 	withColors,
 	AlignmentToolbar,
-	BlockControls,
 	ContrastChecker,
 	InspectorControls,
 	PanelColor,
@@ -75,8 +74,7 @@ const FONT_SIZES = [
 	},
 ];
 
-const toolbar = ( props ) => {
-	const { attributes, setAttributes } = props;
+const controls = ( attributes, setAttributes ) => {
 	const { align } = attributes;
 	return (
 		<AlignmentToolbar
@@ -178,9 +176,6 @@ class ParagraphBlock extends Component {
 
 		return (
 			<Fragment>
-				<BlockControls>
-					{ toolbar( this.props, this.state ) }
-				</BlockControls>
 				<InspectorControls>
 					<PanelBody title={ __( 'Text Settings' ) } className="blocks-font-size">
 						<FontSizePicker
@@ -322,7 +317,7 @@ export const settings = {
 
 	attributes: schema,
 
-	toolbar,
+	controls,
 
 	transforms: {
 		from: [
