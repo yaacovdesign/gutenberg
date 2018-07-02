@@ -13,6 +13,7 @@ Gutenberg's deprecation policy is intended to support backwards-compatibility fo
  - `blocks.BlockEdit` filter removed. Please use `editor.BlockEdit` instead.
  - `blocks.BlockListBlock` filter removed. Please use `editor.BlockListBlock` instead.
  - `blocks.MediaUpload` filter removed. Please use `editor.MediaUpload` instead.
+ - Block `id` prop in `edit` function removed. Please use block `clientId` prop instead.
 
 ## 3.2.0
 

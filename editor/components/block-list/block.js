@@ -28,6 +28,7 @@ import { withFilters } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { withViewportMatch } from '@wordpress/viewport';
+import deprecated from '@wordpress/deprecated';
 
 /**
  * Internal dependencies
@@ -533,7 +534,18 @@ export class BlockListBlock extends Component {
 								insertBlocksAfter={ isLocked ? undefined : this.insertBlocksAfter }
 								onReplace={ isLocked ? undefined : onReplace }
 								mergeBlocks={ isLocked ? undefined : this.mergeBlocks }
-								id={ uid }
+								clientId={ uid }
+								{ ...{
+									get id() {
+										deprecated( 'block `id` prop in `edit` function', {
+											version: '3.3',
+											alternative: 'block `clientId` prop',
+											plugin: 'Gutenberg',
+										} );
+
+										return uid;
+									},
+								} }
 								isSelectionEnabled={ this.props.isSelectionEnabled }
 								toggleSelection={ this.props.toggleSelection }
 							/>
