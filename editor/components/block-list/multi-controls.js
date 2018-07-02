@@ -9,6 +9,7 @@ import { first, last, uniq } from 'lodash';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { getBlockType } from '@wordpress/blocks';
 import { compose } from '@wordpress/element';
+import { Button } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -56,8 +57,13 @@ function BlockListMultiControls( { multiSelectedBlockUids, multiSelectedBlocks, 
 	}
 
 	return [
-		<MultiBlocksSwitcher key="switcher" />,
-		controls,
+		( undefined === controls ? <MultiBlocksSwitcher key="switcher" /> : (
+			<div className="editor-block-toolbar">
+				<MultiBlocksSwitcher key="switcher" />
+				{ controls }
+				<Button>{ multiSelectedBlocks.length } blocks selected</Button>
+			</div> )
+		),
 		<BlockMover
 			key="mover"
 			rootUID={ rootUID }
