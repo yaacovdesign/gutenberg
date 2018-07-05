@@ -217,6 +217,16 @@ export const settings = {
 			/>
 		);
 
+		if ( 'left' === align || 'right' === align ) {
+			return (
+				<aside>
+					<figure className={ classes }>
+						{ href ? <a href={ href }>{ image }</a> : image }
+						{ caption && caption.length > 0 && <RichText.Content tagName="figcaption" value={ caption } /> }
+					</figure>
+				</aside>
+			);
+		}
 		return (
 			<figure className={ classes }>
 				{ href ? <a href={ href }>{ image }</a> : image }
