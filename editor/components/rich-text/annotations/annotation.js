@@ -56,6 +56,7 @@ class Annotation extends Component {
 			startNode = this.matchEditorXPath( startXPath );
 			endNode = this.matchEditorXPath( endXPath );
 		} catch ( e ) {
+			console.log( "Couldn't match XPath", e );
 			return;
 		}
 
@@ -94,11 +95,13 @@ class Annotation extends Component {
 	}
 
 	static getDerivedStateFromProps( props, state ) {
-		const isDirty = ! isEqual( props.annotation, state.prevAnnotation );
+		if ( ! isEqual( props.annotation, state.prevAnnotation ) ) {
+			return {
+				isDirty: true,
+			};
+		}
 
-		return {
-			isDirty,
-		};
+		return {};
 	}
 
 	render() {
