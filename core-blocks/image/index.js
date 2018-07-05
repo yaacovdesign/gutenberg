@@ -217,25 +217,55 @@ export const settings = {
 			/>
 		);
 
-		if ( 'left' === align || 'right' === align ) {
-			return (
-				<aside>
-					<figure className={ classes }>
-						{ href ? <a href={ href }>{ image }</a> : image }
-						{ caption && caption.length > 0 && <RichText.Content tagName="figcaption" value={ caption } /> }
-					</figure>
-				</aside>
-			);
-		}
-		return (
+		const figure = (
 			<figure className={ classes }>
 				{ href ? <a href={ href }>{ image }</a> : image }
 				{ caption && caption.length > 0 && <RichText.Content tagName="figcaption" value={ caption } /> }
 			</figure>
 		);
+
+		if ( 'left' === align || 'right' === align ) {
+			return (
+				<aside>
+					{ figure }
+				</aside>
+			);
+		}
+
+		return (
+			{ figure }
+		);
 	},
 
 	deprecated: [
+		{
+			attributes: blockAttributes,
+			save( { attributes } ) {
+				const { url, alt, caption, align, href, width, height, id } = attributes;
+
+				const classes = classnames( {
+					[ `align${ align }` ]: align,
+					'is-resized': width || height,
+				} );
+
+				const image = (
+					<img
+						src={ url }
+						alt={ alt }
+						className={ id ? `wp-image-${ id }` : null }
+						width={ width }
+						height={ height }
+					/>
+				);
+
+				return (
+					<figure className={ classes }>
+						{ href ? <a href={ href }>{ image }</a> : image }
+						{ caption && caption.length > 0 && <RichText.Content tagName="figcaption" value={ caption } /> }
+					</figure>
+				);
+			},
+		},
 		{
 			attributes: blockAttributes,
 			save( { attributes } ) {
