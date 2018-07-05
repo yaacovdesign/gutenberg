@@ -8,9 +8,9 @@ import { castArray } from 'lodash';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
+import { Component, compose } from '@wordpress/element';
 import { IconButton, Dropdown, NavigableMenu } from '@wordpress/components';
-import { withDispatch } from '@wordpress/data';
+import { withSelect, withDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -53,6 +53,8 @@ export class BlockSettingsMenu extends Component {
 			focus,
 			rootUID,
 			isHidden,
+			isMultiSelecting,
+			onAnnotate,
 		} = this.props;
 		const { isFocused } = this.state;
 		const blockUIDs = castArray( uids );
@@ -100,6 +102,19 @@ export class BlockSettingsMenu extends Component {
 							<div className="editor-block-settings-menu__separator" />
 							{ count === 1 && <SharedBlockDeleteButton uid={ firstBlockUID } onToggle={ onClose } itemsRole="menuitem" /> }
 							<BlockRemoveButton uids={ uids } role="menuitem" />
+							{ ! isMultiSelecting &&
+								<IconButton
+									key="annotate"
+									className="editor-block-settings-menu__control"
+									onClick={ () => {
+										onAnnotate( firstBlockUID );
+										onClose();
+									} }
+									icon="admin-generic"
+								>
+									{ __( 'Annotate' ) }
+								</IconButton>
+							}
 						</NavigableMenu>
 					) }
 				/>
@@ -108,8 +123,17 @@ export class BlockSettingsMenu extends Component {
 	}
 }
 
-export default withDispatch( ( dispatch ) => ( {
-	onSelect( uid ) {
-		dispatch( 'core/editor' ).selectBlock( uid );
-	},
-} ) )( BlockSettingsMenu );
+export default
+compose( [
+	withSelect( ( select ) => ( {
+		isMultiSelecting: select( 'core/editor' ).isMultiSelecting(),
+	} ) ),
+	withDispatch( ( dispatch ) => ( {
+		onSelect( uid ) {
+			dispatch( 'core/editor' ).selectBlock( uid );
+		},
+		onAnnotate( uid ) {
+			dispatch( 'core/editor' ).addAnnotationOnSelection( uid );
+		},
+	} ) ),
+] )( BlockSettingsMenu );

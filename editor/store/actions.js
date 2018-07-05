@@ -748,3 +748,144 @@ export function unregisterToken( name ) {
 		name,
 	};
 }
+
+const getXPathNodeIndex = (node) => {
+	let typeIndex = 1; // Default index.
+
+	if (!node.parentNode || !node.parentNode.hasChildNodes()) {
+		return typeIndex;
+	}
+
+	const childNodes = node.parentNode.childNodes;
+
+	for (let i = 0; i < childNodes.length; i++) {
+		if (childNodes[i] === node) {
+			break;
+		}
+
+		if (childNodes[i].nodeType !== node.nodeType) {
+			continue;
+		}
+
+		switch (childNodes[i].nodeType) {
+			case Node.ELEMENT_NODE:
+				typeIndex += childNodes[i].tagName === node.tagName ? 1 : 0;
+				break;
+
+			case Node.TEXT_NODE:
+			default: // e.g., comments, processing instructions.
+				typeIndex += 1;
+				break;
+		}
+	}
+
+	return typeIndex;
+};
+
+const getTagName = (element) => {
+	return element.tagName.toLowerCase();
+};
+
+const getXPathSelector = (root, node) => {
+	const selectors = [];
+
+	while (node.parentNode) {
+		if (node === root) {
+			break;
+		}
+
+		switch (node.nodeType) {
+			case Node.ELEMENT_NODE:
+				selectors.unshift(getTagName(node) + '[' + getXPathNodeIndex(node) + ']');
+				break;
+
+			case Node.TEXT_NODE:
+				selectors.unshift('text()[' + getXPathNodeIndex(node) + ']');
+				break;
+
+			default: // e.g., comments, processing instructions.
+				break; // Do not include.
+		}
+
+		node = node.parentNode;
+	}
+
+	return selectors.join('/');
+};
+
+const getClosestElement = (node) => {
+	switch (node.nodeType) {
+		case Node.ELEMENT_NODE:
+			return node;
+
+		case Node.TEXT_NODE:
+		default: // e.g., comments, processing instructions.
+			return node.parentElement || null;
+	}
+};
+
+const getClosestEditable = ( node ) => {
+	const element = getClosestElement( node );
+
+	if ( ! element ) {
+		return null;
+	}
+
+	return element.closest( '.editor-rich-text__tinymce' ) ||
+		null;
+};
+
+export function addAnnotationOnSelection( block, id = uuid() ) {
+	const selection = window.getSelection();
+	const range = selection.rangeCount ? selection.getRangeAt( 0 ) : null;
+	const editable = range ? getClosestEditable( range.startContainer ) : null;
+
+	if ( ! range || ! editable ) {
+		console.log( range, editable );
+		return {
+			type: 'HIHIHI',
+		}; // Not an editable selection.
+	}
+	if ( range.startContainer === range.endContainer ) {
+		if ( range.startOffset === range.endOffset ) {
+			console.log( '???', range );
+			return {
+				type: 'HIHIHI',
+			}; // Selection is empty.
+		}
+	}
+
+	console.log( range );
+
+	return addAnnotation(
+		block,
+		getXPathSelector( editable, range.startContainer ),
+		range.startOffset,
+		getXPathSelector( editable, range.endContainer ),
+		range.endOffset,
+		id,
+	);
+}
+
+/**
+ * Adds an annotation to a piece of text in a block.
+ *
+ */
+export function addAnnotation( block, startXPath, startOffset, endXPath, endOffset, id = uuid() ) {
+	return {
+		type: 'ANNOTATION_ADD',
+		id,
+		block,
+		startXPath,
+		startOffset,
+		endXPath,
+		endOffset,
+	};
+}
+
+export function removeAnnotation( annotationId ) {
+	return {
+		type: 'ANNOTATION_REMOVE',
+		annotationId,
+	};
+}

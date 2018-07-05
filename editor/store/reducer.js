@@ -1121,6 +1121,30 @@ export function tokens( state = {}, action ) {
 	return state;
 }
 
+export function annotations( state = [], action ) {
+	switch ( action.type ) {
+		case 'ANNOTATION_ADD':
+			return [
+				{
+					id: action.id,
+					block: action.block,
+					startXPath: action.startXPath,
+					startOffset: action.startOffset,
+					endXPath: action.endXPath,
+					endOffset: action.endOffset,
+				},
+				...state,
+			];
+
+		case 'ANNOTATION_REMOVE':
+			return state.filter( ( annotation ) => {
+				return annotation.id !== action.annotationId;
+			} );
+	}
+
+	return state;
+}
+
 export default optimist( combineReducers( {
 	editor,
 	currentPost,
@@ -1138,4 +1162,5 @@ export default optimist( combineReducers( {
 	autosave,
 	settings,
 	tokens,
+	annotations,
 } ) );

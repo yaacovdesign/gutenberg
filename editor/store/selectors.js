@@ -1891,3 +1891,9 @@ export function getTokenSettings( state, name ) {
 
 	return state.tokens[ name ];
 }
+
+export function getAnnotationsForBlock( state, uid ) {
+	return state.annotations.filter( ( annotation ) => {
+		return annotation.block === uid;
+	} );
+}

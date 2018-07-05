@@ -2,6 +2,22 @@
 .editor-rich-text {
 	// This is needed to position the formatting toolbar.
 	position: relative;
+
+	* {
+		z-index: 1
+	}
+
+	> .annotation-markers {
+		> .annotation-marker-debug {
+			margin: 1em 0;
+		}
+
+		> .annotation-marker {
+			z-index: 0;
+			position: absolute;
+			background: #fdf451 !important;
+		}
+	}
 }
 
 .editor-rich-text__tinymce {
